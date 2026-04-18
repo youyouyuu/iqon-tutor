@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BrightPath Admin Dashboard</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Merriweather:wght@400;700&display=swap"
+    rel="stylesheet"
+  >
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="admin-shell">
+    <div class="container">
+      <header class="admin-header">
+        <div>
+          <p class="eyebrow">Internal Dashboard</p>
+          <h1>Admissions Dashboard</h1>
+          <p class="helper-text">สำหรับติดตามข้อมูลผู้สนใจเรียนที่ส่งเข้ามาจากหน้าเว็บไซต์</p>
+        </div>
+        <div class="admin-actions">
+          <a class="button button-secondary" href="/">กลับหน้าเว็บไซต์</a>
+        </div>
+      </header>
+
+      <section class="login-card" id="login-card">
+        <h2>เข้าสู่ระบบแอดมิน</h2>
+        <form id="admin-login-form">
+          <label>
+            Username
+            <input type="text" id="admin-username" placeholder="admin" required>
+          </label>
+          <label>
+            Password
+            <input type="password" id="admin-password" placeholder="••••••••" required>
+          </label>
+          <button class="button button-primary" type="submit">เข้าสู่แดชบอร์ด</button>
+          <p class="form-status" id="admin-login-status" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <section class="admin-dashboard hidden" id="admin-dashboard">
+        <div class="stats-grid">
+          <article class="admin-card">
+            <h3>จำนวนข้อมูลทั้งหมด</h3>
+            <div class="metric" id="metric-total">0</div>
+            <p class="metric-label">รายการผู้สนใจเรียนในระบบ</p>
+          </article>
+          <article class="admin-card">
+            <h3>รายการวันนี้</h3>
+            <div class="metric" id="metric-today">0</div>
+            <p class="metric-label">รายการที่ส่งเข้ามาในวันนี้</p>
+          </article>
+          <article class="admin-card">
+            <h3>อัปเดตล่าสุด</h3>
+            <div class="metric" id="metric-latest">-</div>
+            <p class="metric-label">เวลาของรายการล่าสุด</p>
+          </article>
+        </div>
+
+        <section class="table-card">
+          <h3>รายการผู้สนใจเรียนล่าสุด</h3>
+          <p class="helper-text">ระบบจะดึงข้อมูลใหม่อัตโนมัติทุก 15 วินาที</p>
+          <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>วันเวลา</th>
+                  <th>ชื่อ</th>
+                  <th>ระดับชั้น</th>
+                  <th>วิชา</th>
+                  <th>โทรศัพท์</th>
+                  <th>รายละเอียด</th>
+                </tr>
+              </thead>
+              <tbody id="inquiry-table-body">
+                <tr>
+                  <td colspan="6" class="empty-state">ยังไม่มีข้อมูล</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </div>
+  </main>
+
+  <script src="admin.js"></script>
+</body>
+</html>

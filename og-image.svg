@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">สถาบันกวดวิชา IQON - ไอคิวออน</title>
+  <desc id="desc">คณิต วิทย์ อังกฤษ ฟิสิกส์ เคมี ชีวะ ติวสอบเข้า เพิ่มเนื้อหา ปูพื้นฐาน จังหวัดจันทบุรี</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f5f7fb"/>
+      <stop offset="100%" stop-color="#e7eef7"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="50" y="50" width="1100" height="530" rx="28" fill="#ffffff" stroke="#d6e0eb"/>
+  <text x="100" y="170" fill="#143b67" font-family="Arial, sans-serif" font-size="38" font-weight="700">สถาบันกวดวิชา</text>
+  <text x="100" y="280" fill="#143b67" font-family="Arial, sans-serif" font-size="120" font-weight="800">IQON</text>
+  <text x="100" y="350" fill="#f28a3d" font-family="Arial, sans-serif" font-size="58" font-weight="700">เปิดรับสมัครแล้ววันนี้</text>
+  <text x="100" y="430" fill="#1b3552" font-family="Arial, sans-serif" font-size="34">คณิตศาสตร์ • วิทยาศาสตร์ • อังกฤษ • ฟิสิกส์ • เคมี • ชีวะ</text>
+  <text x="100" y="485" fill="#5a6473" font-family="Arial, sans-serif" font-size="28">ติวสอบเข้า • เพิ่มเนื้อหา • ปูพื้นฐาน • จันทบุรี</text>
+  <rect x="760" y="130" width="300" height="210" rx="26" fill="#fff5ec" stroke="#ffd7b3"/>
+  <text x="800" y="190" fill="#e36435" font-family="Arial, sans-serif" font-size="34" font-weight="700">โปรโมชันเปิดสถาบัน</text>
+  <text x="800" y="245" fill="#143b67" font-family="Arial, sans-serif" font-size="30">ลด 10%</text>
+  <text x="800" y="288" fill="#143b67" font-family="Arial, sans-serif" font-size="30">ฟรี สื่อการเรียนรู้</text>
+  <text x="800" y="331" fill="#143b67" font-family="Arial, sans-serif" font-size="30">ฟรี วัดระดับก่อนเรียน</text>
+  <text x="760" y="470" fill="#143b67" font-family="Arial, sans-serif" font-size="26">โทร 094-174-8919</text>
+  <text x="760" y="515" fill="#143b67" font-family="Arial, sans-serif" font-size="24">Line: lin.ee/fOA2NDf2</text>
+</svg>
