@@ -1356,7 +1356,7 @@ iframe {
   border: 1px solid rgba(255, 255, 255, 0.08);
   background:
     linear-gradient(180deg, rgba(14, 20, 27, 0.18), rgba(14, 20, 27, 0.4)),
-    url("image/d.png"),
+    url("d.png"),
     linear-gradient(135deg, rgba(31, 45, 58, 0.1), rgba(12, 17, 22, 0.52)),
     linear-gradient(180deg, #4b2f27 0%, #3d2b28 24%, #1e232c 72%, #0f131a 100%);
   background-position: center, center, center, center;
