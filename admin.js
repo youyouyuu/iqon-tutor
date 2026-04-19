@@ -4,6 +4,7 @@ const dashboard = document.querySelector("#admin-dashboard");
 const loginStatus = document.querySelector("#admin-login-status");
 const usernameInput = document.querySelector("#admin-username");
 const passwordInput = document.querySelector("#admin-password");
+const passwordToggle = document.querySelector("#password-toggle");
 const totalMetric = document.querySelector("#metric-total");
 const todayMetric = document.querySelector("#metric-today");
 const latestMetric = document.querySelector("#metric-latest");
@@ -21,7 +22,9 @@ async function fetchJson(path) {
 
   const payload = await response.json();
   if (!response.ok || !payload.ok) {
-    throw new Error(payload.error || "Request failed");
+    const error = new Error(payload.error || "Request failed");
+    error.status = response.status;
+    throw error;
   }
   return payload;
 }
@@ -102,7 +105,10 @@ async function startDashboard() {
     authToken = null;
     dashboard.classList.add("hidden");
     loginCard.classList.remove("hidden");
-    loginStatus.textContent = "ไม่สามารถเข้าสู่ระบบได้ กรุณาตรวจสอบชื่อผู้ใช้และรหัสผ่าน";
+    loginStatus.textContent =
+      error.status === 401
+        ? "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง"
+        : "ไม่สามารถเชื่อมต่อระบบได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง";
     loginStatus.className = "form-status is-error";
   }
 }
@@ -122,6 +128,19 @@ if (loginForm) {
     }
 
     loginStatus.textContent = "";
+  });
+}
+
+if (passwordToggle && passwordInput) {
+  passwordToggle.addEventListener("click", () => {
+    const isHidden = passwordInput.type === "password";
+    passwordInput.type = isHidden ? "text" : "password";
+    passwordToggle.setAttribute("aria-pressed", String(isHidden));
+    passwordToggle.setAttribute(
+      "aria-label",
+      isHidden ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน",
+    );
+    passwordToggle.classList.toggle("is-active", isHidden);
   });
 }
 

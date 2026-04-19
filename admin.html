@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BrightPath Admin Dashboard</title>
+  <title>IQON Admin Dashboard</title>
   <meta name="robots" content="noindex, nofollow">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,10 +17,18 @@
   <main class="admin-shell">
     <div class="container">
       <header class="admin-header">
-        <div>
-          <p class="eyebrow">Internal Dashboard</p>
-          <h1>Admissions Dashboard</h1>
-          <p class="helper-text">สำหรับติดตามข้อมูลผู้สนใจเรียนที่ส่งเข้ามาจากหน้าเว็บไซต์</p>
+        <div class="admin-brand-wrap">
+          <div class="admin-brand-badge" aria-hidden="true">
+            <span class="admin-brand-i">I</span>
+            <span class="admin-brand-q">Q</span>
+            <span class="admin-brand-o">O</span>
+            <span class="admin-brand-n">N</span>
+          </div>
+          <div>
+            <p class="eyebrow">IQON Dashboard</p>
+            <h1>ระบบจัดการผู้สนใจเรียน</h1>
+            <p class="helper-text">สำหรับติดตามข้อมูลผู้สนใจเรียนที่ส่งเข้ามาจากหน้าเว็บไซต์ของสถาบันกวดวิชา IQON</p>
+          </div>
         </div>
         <div class="admin-actions">
           <a class="button button-secondary" href="/">กลับหน้าเว็บไซต์</a>
@@ -28,7 +36,13 @@
       </header>
 
       <section class="login-card" id="login-card">
-        <h2>เข้าสู่ระบบแอดมิน</h2>
+        <div class="login-card-top">
+          <div>
+            <p class="eyebrow">Admin Login</p>
+            <h2>เข้าสู่ระบบ IQON</h2>
+          </div>
+          <div class="login-card-chip">Secure Access</div>
+        </div>
         <form id="admin-login-form">
           <label>
             Username
@@ -36,9 +50,21 @@
           </label>
           <label>
             Password
-            <input type="password" id="admin-password" placeholder="••••••••" required>
+            <div class="password-field">
+              <input type="password" id="admin-password" placeholder="••••••••" required>
+              <button
+                class="password-toggle"
+                id="password-toggle"
+                type="button"
+                aria-label="แสดงรหัสผ่าน"
+                aria-pressed="false"
+              >
+                <span class="eye-icon" aria-hidden="true"></span>
+              </button>
+            </div>
           </label>
           <button class="button button-primary" type="submit">เข้าสู่แดชบอร์ด</button>
+          <p class="helper-text compact">กรณีเข้าสู่ระบบไม่สำเร็จ ระบบจะแจ้งเตือนว่าชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง</p>
           <p class="form-status" id="admin-login-status" aria-live="polite"></p>
         </form>
       </section>

@@ -86,7 +86,9 @@
   <header class="site-header">
     <div class="container nav-bar">
       <a class="brand" href="#top" aria-label="สถาบันกวดวิชา IQON - ไอคิวออน">
-        <span class="brand-mark">IQ</span>
+        <span class="brand-mark">
+          <img src="image/icon.jpg" alt="โลโก้ IQON">
+        </span>
         <span class="brand-text">
           <strong>IQON</strong>
           <small>สถาบันกวดวิชาไอคิวออน</small>
@@ -101,7 +103,6 @@
         <a href="#programs">หลักสูตร</a>
         <a href="#approach">แนวทางการสอน</a>
         <a href="#schedule">ตารางเรียน</a>
-        <a href="#admissions">การสมัครเรียน</a>
         <a href="#contact">ติดต่อ</a>
         <a class="nav-cta" href="#contact">นัดหมายปรึกษา</a>
       </nav>
@@ -109,88 +110,184 @@
   </header>
 
   <main id="top">
-    <section class="hero">
-      <div class="container hero-grid">
-        <div class="hero-copy">
-          <p class="eyebrow">Private Academic Institute</p>
-          <h1>สถาบันกวดวิชา IQON เปิดรับสมัครแล้ววันนี้</h1>
-          <p class="hero-text">
-            IQON เปิดสอนคณิตศาสตร์ วิทยาศาสตร์ อังกฤษ ฟิสิกส์ เคมี และชีวะ
-            พร้อมคอร์สติวสอบเข้า เพิ่มเนื้อหา และปูพื้นฐาน สำหรับนักเรียนที่ต้องการเสริมความเข้าใจ
-            และเตรียมตัวอย่างมั่นใจก่อนเริ่มเรียนจริง
-          </p>
-
-          <div class="hero-actions">
-            <a class="button button-primary" href="#contact">สอบถามและสมัครเรียน</a>
-            <a class="button button-secondary" href="https://lin.ee/fOA2NDf2" target="_blank" rel="noreferrer">ติดต่อผ่าน Line</a>
+    <section class="hero hero-cinematic">
+      <div class="hero-cinematic-shell">
+        <div class="container">
+          <!-- แก้ข้อความแถบบนสุดของหน้าแรกตรงนี้ -->
+          <div class="hero-topline">
+            <span class="hero-topline-badge">IQON OPEN NOW</span>
+            <span class="hero-topline-text">คอร์สเรียนพิเศษสายจริงจัง สำหรับนักเรียนที่ต้องการผลลัพธ์ชัดเจน</span>
           </div>
 
-          <div class="hero-meta">
-            <div>
-              <span class="meta-label">ที่ตั้งสถาบัน</span>
-              <strong>จันทบุรี</strong>
+          <div class="hero-stage">
+            <div class="hero-stage-media">
+              <div class="hero-screen-frame">
+                <div class="hero-screen-overlay"></div>
+                <!-- แก้หัวข้อใหญ่ คำโปรย และปุ่มหน้าแรกตรงนี้ -->
+                <div class="hero-screen-content">
+                  <p class="eyebrow">Chanthaburi Tutoring Academy</p>
+                  <h1>เปิดตัวหน้าแรกใหม่ของ IQON ให้เด่นแบบแคมเปญใหญ่ พร้อมวางวิดีโอและภาพของคุณได้ทันที</h1>
+                  <p class="hero-text">
+                    โครงหน้าแรกนี้ออกแบบในสไตล์ cinematic landing page แบบจริงจัง เน้นภาพใหญ่เต็มเฟรม
+                    ตัวอักษรชัด ปุ่มเด่น และมีพื้นที่สำหรับใส่วิดีโอโปรโมต โปสเตอร์กิจกรรม หรือภาพคอร์สเรียนของคุณ
+                  </p>
+
+                  <div class="hero-actions">
+                    <a class="button button-primary" href="#media-showcase">ดูโซนสื่อหลัก</a>
+                    <a class="button button-secondary" href="#contact">สมัครเรียนกับ IQON</a>
+                  </div>
+                </div>
+
+                <!-- ส่วนนี้คือกล่องวิดีโอ/สื่อหลักมุมล่างขวา
+                     ถ้าจะใส่วิดีโอจริง ให้แทน div นี้ด้วย iframe YouTube หรือ video tag ได้ -->
+                <div class="hero-floating-card hero-floating-card-video" id="hero-floating-card">
+                  <button class="hero-floating-close" type="button" aria-label="ปิดกล่องวิดีโอ">×</button>
+                  <span class="hero-floating-label">Video Placeholder</span>
+                  <strong>วางวิดีโอเปิดตัวสถาบันตรงนี้</strong>
+                  <p>เหมาะสำหรับคลิปแนะนำสถาบัน, บรรยากาศการเรียน, หรือวิดีโอเปิดรับสมัคร</p>
+                </div>
+                <button class="hero-floating-open hidden" id="hero-floating-open" type="button">เปิดกล่องวิดีโอ</button>
+              </div>
             </div>
-            <div>
-              <span class="meta-label">โปรโมชันเปิดสถาบัน</span>
-              <strong>ลด 10%</strong>
-            </div>
-            <div>
-              <span class="meta-label">ราคาเริ่มต้น</span>
-              <strong>2,888 บาท / 18 ชม.</strong>
+
+            <!-- กล่องข้อมูลด้านขวาของ hero: แก้โปรโมชัน ราคา และช่องทางติดต่อ -->
+            <div class="hero-status-grid">
+              <article class="hero-status-card">
+                <span class="meta-label">วิชาหลัก</span>
+                <strong>คณิต วิทย์ อังกฤษ ฟิสิกส์ เคมี ชีวะ</strong>
+              </article>
+              <article class="hero-status-card">
+                <span class="meta-label">โปรโมชัน</span>
+                <strong>ลด 10% ฟรีสื่อการเรียน และฟรีวัดระดับก่อนเรียน</strong>
+              </article>
+              <article class="hero-status-card hero-status-card-accent">
+                <span class="meta-label">ติดต่อด่วน</span>
+                <strong>094 174 8919</strong>
+                <p>@iqon_tutor • Facebook • Line Official</p>
+              </article>
             </div>
           </div>
         </div>
-
-        <aside class="hero-panel" aria-label="ข้อมูลสำคัญ">
-          <div class="panel-header">
-            <p>Admissions Status</p>
-            <span>เปิดรับสมัครแล้ววันนี้</span>
-          </div>
-
-          <div class="panel-block">
-            <h2>โปรโมชันเปิดสถาบัน</h2>
-            <ul class="panel-list">
-              <li>รับส่วนลด 10%</li>
-              <li>ฟรี สื่อการเรียนรู้</li>
-              <li>ฟรี สอบวัดระดับก่อนเรียน</li>
-              <li>เริ่มต้นเพียง 2,888 บาท (18 ชั่วโมง/คอร์ส)</li>
-            </ul>
-          </div>
-
-          <div class="panel-stats">
-            <article>
-              <strong>6</strong>
-              <span>วิชาที่เปิดสอน</span>
-            </article>
-            <article>
-              <strong>3</strong>
-              <span>รูปแบบคอร์สหลัก</span>
-            </article>
-            <article>
-              <strong>094</strong>
-              <span>174 8919</span>
-            </article>
-          </div>
-
-          <div class="panel-note">
-            สอบถามข้อมูลเพิ่มเติมได้ทางโทรศัพท์ Facebook, Instagram และ Line Official ของสถาบัน
-          </div>
-        </aside>
       </div>
     </section>
 
-    <section class="overview-strip">
-      <div class="container overview-grid">
-        <article>
-          <span class="strip-label">Academic Structure</span>
-          <h2>คอร์สที่ตอบโจทย์การเรียนจริง</h2>
-          <p>เหมาะสำหรับนักเรียนที่ต้องการติวสอบเข้า เพิ่มเนื้อหา และปูพื้นฐานในวิชาหลัก</p>
-        </article>
-        <article>
-          <span class="strip-label">Parent Communication</span>
-          <h2>สมัครง่าย สอบถามสะดวก</h2>
-          <p>ติดต่อได้ผ่านโทรศัพท์ Line, Instagram และ Facebook Page ของสถาบันโดยตรง</p>
-        </article>
+    <section class="section news-hub-section" id="media-showcase">
+      <div class="container">
+        <div class="news-hub-header">
+          <div>
+            <p class="eyebrow">Latest Highlights</p>
+            <h2>ข่าวสารล่าสุดและพื้นที่โปรโมต</h2>
+          </div>
+          <a class="news-link" href="/courses.html" target="_blank" rel="noreferrer">ดูตารางราคาคอร์สเรียน</a>
+        </div>
+
+        <div class="news-card-grid">
+          <!-- การ์ดข่าว/รูปโปรโมตใบที่ 1: เปลี่ยนหัวข้อ ซับไทย และใส่รูปแทน placeholder ได้ตรงนี้ -->
+          <article class="news-card">
+            <div class="news-card-media news-card-media-blue">
+              <span>News / Poster 01</span>
+            </div>
+            <div class="news-card-body">
+              <p class="news-meta">เปิดรับสมัคร | รอบใหม่</p>
+              <h3>คอร์สเรียนปรับพื้นฐานและเพิ่มเนื้อหา</h3>
+              <p>ใช้บล็อกนี้เป็นข่าวสารอัปเดตล่าสุดของสถาบัน หรือโปสเตอร์ประชาสัมพันธ์รอบเรียนใหม่</p>
+            </div>
+          </article>
+
+          <!-- การ์ดข่าว/วิดีโอใบที่ 2: เหมาะกับคลิปกิจกรรมหรือรีวิว -->
+          <article class="news-card">
+            <div class="news-card-media news-card-media-video">
+              <span>Video / Activity 02</span>
+            </div>
+            <div class="news-card-body">
+              <p class="news-meta">กิจกรรม | วิดีโอ</p>
+              <h3>คลิปรีวิวบรรยากาศการเรียนหรือผลงานนักเรียน</h3>
+              <p>ตำแหน่งนี้เหมาะสำหรับภาพนิ่งหรือวิดีโอแนวนอน เพื่อสร้างความน่าเชื่อถือและความมีชีวิตชีวาให้หน้าเว็บ</p>
+            </div>
+          </article>
+
+          <!-- การ์ดโปรโมชันใบที่ 3: ใช้ใส่ราคา แพ็กเกจ หรือข้อความขายคอร์ส -->
+          <article class="news-card">
+            <div class="news-card-media news-card-media-red">
+              <span>Promotion 03</span>
+            </div>
+            <div class="news-card-body">
+              <p class="news-meta">โปรโมชัน | เปิดสถาบัน</p>
+              <h3>อัปเดตราคาใหม่ พร้อมทดลองเรียนวัดระดับฟรี</h3>
+              <p>แพ็กเกจเริ่มต้นคอร์สเดี่ยว 4,599 บาท และคอร์สคู่ 3,899 บาท พร้อมราคาพิเศษสำหรับนักเรียนเก่า</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section story-split-section">
+      <div class="container story-split-grid">
+        <!-- ฝั่งซ้ายของ section นี้คือข้อความอธิบายสถาบัน -->
+        <div class="story-copy">
+          <p class="eyebrow">Teaching Experience</p>
+          <h2>การเรียนการสอนของ IQON ออกแบบให้เข้าใจง่าย เป็นระบบ และต่อยอดผลลัพธ์ได้จริง</h2>
+          <p>
+            เราเน้นการสอนที่ช่วยให้นักเรียนเข้าใจบทเรียนอย่างเป็นขั้นตอน ทั้งการปูพื้นฐาน
+            การเพิ่มเนื้อหา และการเตรียมตัวสอบ โดยให้ความสำคัญกับการอธิบายที่ชัดเจน
+            การฝึกทำโจทย์อย่างเหมาะสม และการติดตามพัฒนาการของผู้เรียนอย่างต่อเนื่อง
+          </p>
+          <p>
+            รูปแบบคอร์สของ IQON ถูกจัดให้เหมาะกับเป้าหมายที่แตกต่างกัน ไม่ว่าจะเป็นการเตรียมสอบเข้า
+            การเสริมเกรดในโรงเรียน หรือการพัฒนาความมั่นใจในรายวิชาที่ต้องการเน้นเป็นพิเศษ
+          </p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#programs">ดูหลักสูตร</a>
+            <a class="button button-secondary" href="#contact">คุยกับสถาบัน</a>
+          </div>
+        </div>
+
+        <!-- ฝั่งขวาของ section นี้คือพื้นที่ใส่รูปหรือวิดีโอใหญ่ 1 ชิ้น -->
+        <div class="story-media-card">
+          <video class="story-media-video" autoplay muted loop playsinline controls>
+            <source src="image/video/Video%20Feature.mp4" type="video/mp4">
+            เบราว์เซอร์นี้ไม่รองรับการเล่นวิดีโอ
+          </video>
+          <div class="story-media-placeholder story-media-overlay" id="story-media-overlay">
+            <button class="story-overlay-close" type="button" aria-label="ปิดกล่องข้อความวิดีโอ">×</button>
+            <span class="story-media-tag">Image or Video Feature</span>
+            <strong>วิดีโอแนะนำสถาบัน IQON</strong>
+            <p>คลิปนี้ดึงมาจากไฟล์ `Video Feature.mp4` ในโฟลเดอร์วิดีโอของโปรเจกต์แล้ว</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section promo-banner-section">
+      <div class="container promo-banner-grid">
+        <!-- สองกล่องด้านซ้ายคือพื้นที่วางรูปโปรโมชันหรือโปสเตอร์ -->
+        <div class="promo-visual-stack">
+          <div class="promo-character-card">
+            <img src="image/Media%20Slot%20A.png" alt="ภาพโปรโมชัน IQON">
+          </div>
+          <div class="promo-character-card small">
+            <span>Media Slot B</span>
+          </div>
+        </div>
+
+        <!-- ฝั่งขวาคือข้อความโปรโมตหลักของแคมเปญ -->
+        <div class="promo-copy">
+          <p class="eyebrow">Your Campaign Zone</p>
+          <h2>พื้นที่โปรโมตใหญ่สำหรับคอร์สเด่นหรือภาพรวมการรับสมัครของคุณ</h2>
+          <p>
+            บล็อกนี้ตั้งใจทำให้เด่นมากเป็นพิเศษคล้ายหน้าโปรโมตเกมหรืออีเวนต์ใหญ่ สามารถใช้กับคอร์สเปิดเทอม,
+            ตารางติวสอบเข้า, โปรโมชั่นรอบใหม่ หรือแนะนำจุดเด่นของ IQON ได้เต็มที่
+          </p>
+          <ul class="promo-feature-list">
+            <li>วางรูปหลักหรือโปสเตอร์โปรโมชันได้ 2 จุด</li>
+            <li>ใช้เป็นส่วนดันปุ่มสมัครเรียนหรือช่องทางติดต่อได้ชัดเจน</li>
+            <li>คุมโทนสีฟ้า เหลือง ส้ม แดง ให้ตรงกับแบรนด์ IQON</li>
+          </ul>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#contact">สมัครเรียนเลย</a>
+            <a class="button button-secondary" href="https://www.facebook.com/profile.php?id=61578446523794&locale=th_TH" target="_blank" rel="noreferrer">ดู Facebook Page</a>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -238,17 +335,6 @@
               <li>มีสื่อการเรียนรู้ประกอบ</li>
             </ul>
           </article>
-
-          <article class="program-card">
-            <span class="card-tag">โปรโมชัน</span>
-            <h3>แพ็กเกจเปิดสถาบัน</h3>
-            <p>คอร์สกลุ่มพร้อมโปรโมชันพิเศษช่วงเปิดสถาบัน สำหรับผู้ที่สมัครในช่วงเริ่มต้น</p>
-            <ul>
-              <li>รับส่วนลด 10%</li>
-              <li>เริ่มต้น 2,888 บาท / 18 ชั่วโมง</li>
-              <li>รายละเอียดโปรโมชันเป็นไปตามเงื่อนไขของสถาบัน</li>
-            </ul>
-          </article>
         </div>
       </div>
     </section>
@@ -285,85 +371,112 @@
       </div>
     </section>
 
-    <section class="section" id="schedule">
+    <section class="section schedule-section" id="schedule">
       <div class="container schedule-layout">
-        <div class="section-heading compact">
-          <p class="eyebrow">Class Schedule</p>
-          <h2>ภาพรวมคอร์สที่เปิดสอน</h2>
-          <p>
-            ตารางและรอบเรียนสามารถสอบถามเพิ่มเติมกับสถาบันได้โดยตรง
-            ส่วนนี้สรุปคอร์สหลักที่เปิดรับสมัครในช่วงนี้
-          </p>
-        </div>
-
         <div class="schedule-card">
           <div class="schedule-row schedule-head">
-            <span>คอร์ส</span>
-            <span>เหมาะสำหรับ</span>
-            <span>รายละเอียด</span>
+            <span>แพ็กเกจคอร์ส</span>
+            <span>จำนวนชั่วโมง</span>
+            <span>ราคา</span>
           </div>
-          <div class="schedule-row">
-            <span>ติวสอบเข้า</span>
-            <span>ผู้ที่ต้องการเตรียมสอบ</span>
-            <span>ฝึกโจทย์และทบทวนเนื้อหา</span>
+          <div class="schedule-row schedule-row-solo">
+            <div class="schedule-package">
+              <span class="schedule-badge schedule-badge-solo">คอร์สเดี่ยว</span>
+              <strong>แพ็กเกจเดี่ยว</strong>
+              <small>เหมาะสำหรับผู้เรียน 1 วิชา</small>
+            </div>
+            <div class="schedule-hours">
+              <strong>12 ชั่วโมง</strong>
+              <small>1 วิชา</small>
+            </div>
+            <div class="schedule-price">
+              <strong>4,599</strong>
+              <span>บาท</span>
+              <small>นักเรียนเก่า 4,350 บาท</small>
+            </div>
           </div>
-          <div class="schedule-row">
-            <span>เพิ่มเนื้อหา</span>
-            <span>ผู้ที่ต้องการเรียนล่วงหน้า</span>
-            <span>เสริมบทเรียนให้พร้อมกว่าเดิม</span>
+          <div class="schedule-row schedule-row-solo">
+            <div class="schedule-package">
+              <span class="schedule-badge schedule-badge-solo">คอร์สเดี่ยว</span>
+              <strong>แพ็กเกจเดี่ยว 2 คอร์ส</strong>
+              <small>เรียน 2 วิชา</small>
+            </div>
+            <div class="schedule-hours">
+              <strong>24 (+6) ชั่วโมง</strong>
+              <small>รวมชั่วโมงโบนัส</small>
+            </div>
+            <div class="schedule-price">
+              <strong>9,200</strong>
+              <span>บาท</span>
+              <small>นักเรียนเก่า 9,000 บาท</small>
+            </div>
           </div>
-          <div class="schedule-row">
-            <span>ปูพื้นฐาน</span>
-            <span>ผู้ที่ต้องการทบทวนใหม่</span>
-            <span>จัดระบบความเข้าใจตั้งแต่พื้นฐาน</span>
+          <div class="schedule-row schedule-row-solo">
+            <div class="schedule-package">
+              <span class="schedule-badge schedule-badge-solo">คอร์สเดี่ยว</span>
+              <strong>แพ็กเกจเดี่ยว 3 คอร์ส</strong>
+              <small>เรียน 3 วิชา</small>
+            </div>
+            <div class="schedule-hours">
+              <strong>36 (+9) ชั่วโมง</strong>
+              <small>รวมชั่วโมงโบนัส</small>
+            </div>
+            <div class="schedule-price">
+              <strong>13,500</strong>
+              <span>บาท</span>
+              <small>นักเรียนเก่า 13,300 บาท</small>
+            </div>
           </div>
-          <div class="schedule-row">
-            <span>โปรโมชันเปิดสถาบัน</span>
-            <span>ผู้สมัครใหม่</span>
-            <span>เริ่มต้น 2,888 บาท / 18 ชม.</span>
+          <div class="schedule-row schedule-row-pair">
+            <div class="schedule-package">
+              <span class="schedule-badge schedule-badge-pair">คอร์สคู่</span>
+              <strong>แพ็กเกจคู่</strong>
+              <small>เหมาะสำหรับ 1 วิชา</small>
+            </div>
+            <div class="schedule-hours">
+              <strong>15 ชั่วโมง</strong>
+              <small>1 วิชา</small>
+            </div>
+            <div class="schedule-price">
+              <strong>3,899</strong>
+              <span>บาท</span>
+              <small>นักเรียนเก่า 3,700 บาท</small>
+            </div>
+          </div>
+          <div class="schedule-row schedule-row-pair">
+            <div class="schedule-package">
+              <span class="schedule-badge schedule-badge-pair">คอร์สคู่</span>
+              <strong>แพ็กเกจคู่ 2 คอร์ส</strong>
+              <small>เรียน 2 วิชา</small>
+            </div>
+            <div class="schedule-hours">
+              <strong>30 ชั่วโมง</strong>
+              <small>2 วิชา</small>
+            </div>
+            <div class="schedule-price">
+              <strong>7,500</strong>
+              <span>บาท</span>
+              <small>นักเรียนเก่า 7,400 บาท</small>
+            </div>
+          </div>
+          <div class="schedule-row schedule-row-pair">
+            <div class="schedule-package">
+              <span class="schedule-badge schedule-badge-pair">คอร์สคู่</span>
+              <strong>แพ็กเกจคู่ 3 คอร์ส</strong>
+              <small>เรียน 3 วิชา</small>
+            </div>
+            <div class="schedule-hours">
+              <strong>45 ชั่วโมง</strong>
+              <small>3 วิชา</small>
+            </div>
+            <div class="schedule-price">
+              <strong>11,000</strong>
+              <span>บาท</span>
+              <small>นักเรียนเก่า 10,000 บาท</small>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
 
-    <section class="section section-alt" id="admissions">
-      <div class="container admissions-grid">
-        <div class="section-heading compact">
-          <p class="eyebrow">Admissions Process</p>
-          <h2>ขั้นตอนการสมัครเรียนที่เป็นระบบ</h2>
-          <p>ลดความสับสนในการเริ่มต้น และช่วยให้ผู้ปกครองทราบขั้นตอนชัดเจนตั้งแต่แรก</p>
-        </div>
-
-        <div class="timeline">
-          <article class="timeline-item">
-            <span>01</span>
-            <div>
-              <h3>ส่งข้อมูลความสนใจ</h3>
-              <p>กรอกข้อมูลผ่านเว็บไซต์ หรือทักมาทาง Line / Facebook เพื่อแจ้งวิชาที่สนใจ</p>
-            </div>
-          </article>
-          <article class="timeline-item">
-            <span>02</span>
-            <div>
-              <h3>รับคำปรึกษาเบื้องต้น</h3>
-              <p>ทางสถาบันติดต่อกลับเพื่อแนะนำคอร์สที่เหมาะกับเป้าหมายของผู้เรียน</p>
-            </div>
-          </article>
-          <article class="timeline-item">
-            <span>03</span>
-            <div>
-              <h3>ประเมินและจัดกลุ่มเรียน</h3>
-              <p>มีบริการสอบวัดระดับก่อนเรียนฟรีเพื่อช่วยเลือกคอร์สได้เหมาะสมยิ่งขึ้น</p>
-            </div>
-          </article>
-          <article class="timeline-item">
-            <span>04</span>
-            <div>
-              <h3>เริ่มเรียนและติดตามผล</h3>
-              <p>เริ่มเรียนตามรอบที่เลือก พร้อมรับสื่อการเรียนรู้ตามรายละเอียดของคอร์ส</p>
-            </div>
-          </article>
-        </div>
       </div>
     </section>
 

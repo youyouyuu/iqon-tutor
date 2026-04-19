@@ -2,6 +2,11 @@ const menuToggle = document.querySelector(".menu-toggle");
 const siteMenu = document.querySelector(".site-menu");
 const contactForm = document.querySelector("#contact-form");
 const formStatus = document.querySelector("#form-status");
+const storyOverlay = document.querySelector("#story-media-overlay");
+const storyOverlayClose = document.querySelector(".story-overlay-close");
+const heroFloatingCard = document.querySelector("#hero-floating-card");
+const heroFloatingClose = document.querySelector(".hero-floating-close");
+const heroFloatingOpen = document.querySelector("#hero-floating-open");
 
 if (menuToggle && siteMenu) {
   menuToggle.addEventListener("click", () => {
@@ -14,6 +19,24 @@ if (menuToggle && siteMenu) {
       siteMenu.classList.remove("is-open");
       menuToggle.setAttribute("aria-expanded", "false");
     });
+  });
+}
+
+if (storyOverlay && storyOverlayClose) {
+  storyOverlayClose.addEventListener("click", () => {
+    storyOverlay.classList.add("is-hidden");
+  });
+}
+
+if (heroFloatingCard && heroFloatingClose && heroFloatingOpen) {
+  heroFloatingClose.addEventListener("click", () => {
+    heroFloatingCard.classList.add("is-hidden");
+    heroFloatingOpen.classList.remove("hidden");
+  });
+
+  heroFloatingOpen.addEventListener("click", () => {
+    heroFloatingCard.classList.remove("is-hidden");
+    heroFloatingOpen.classList.add("hidden");
   });
 }
 
