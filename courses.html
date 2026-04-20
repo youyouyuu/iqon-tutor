@@ -34,20 +34,30 @@
         </span>
         <span class="brand-text">
           <strong>IQON</strong>
-          <small>สถาบันกวดวิชาไอคิวออน</small>
+          <small data-i18n="brand_tagline">สถาบันกวดวิชาไอคิวออน</small>
         </span>
       </a>
 
-      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-menu">
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-menu" data-i18n="menu">
         เมนู
       </button>
 
       <nav class="site-menu" id="site-menu" aria-label="เมนูหลัก">
-        <a href="/index.html#programs">หลักสูตร</a>
-        <a href="/index.html#approach">แนวทางการสอน</a>
-        <a href="/courses.html#top">ข้อมูลคอร์ส</a>
-        <a href="/index.html#contact">ติดต่อ</a>
-        <a class="nav-cta" href="https://lin.ee/fOA2NDf2" target="_blank" rel="noreferrer">สอบถามผ่าน Line</a>
+        <a href="/index.html#programs" data-i18n="nav_programs">หลักสูตร</a>
+        <a href="/index.html#approach" data-i18n="nav_approach">แนวทางการสอน</a>
+        <a href="/courses.html#top" data-i18n="nav_courses">ข้อมูลคอร์ส</a>
+        <a href="/index.html#contact" data-i18n="nav_contact">ติดต่อ</a>
+        <div class="language-switch" data-language-switch>
+          <button class="lang-switch" type="button" data-lang-option="th" aria-pressed="false">
+            <span class="lang-flag flag-th" aria-hidden="true"></span>
+            <span class="lang-code">TH</span>
+          </button>
+          <button class="lang-switch" type="button" data-lang-option="en" aria-pressed="false">
+            <span class="lang-flag flag-en" aria-hidden="true"></span>
+            <span class="lang-code">EN</span>
+          </button>
+        </div>
+        <a class="nav-cta" href="https://lin.ee/fOA2NDf2" target="_blank" rel="noreferrer" data-i18n="ask_via_line">สอบถามผ่าน Line</a>
       </nav>
     </div>
   </header>
@@ -64,8 +74,8 @@
           </p>
 
           <div class="courses-hero-actions">
-            <a class="button button-primary" href="https://lin.ee/fOA2NDf2" target="_blank" rel="noreferrer">สอบถามคอร์สเรียน</a>
-            <a class="button button-secondary" href="https://www.facebook.com/profile.php?id=61578446523794&locale=th_TH" target="_blank" rel="noreferrer">ดู Facebook Page</a>
+            <a class="button button-primary" href="https://lin.ee/fOA2NDf2" target="_blank" rel="noreferrer" data-i18n="ask_about_courses">สอบถามคอร์สเรียน</a>
+            <a class="button button-secondary" href="https://www.facebook.com/profile.php?id=61578446523794&locale=th_TH" target="_blank" rel="noreferrer" data-i18n="view_facebook_page">ดู Facebook Page</a>
           </div>
 
           <div class="courses-info-strip">
@@ -345,9 +355,7 @@
           </div>
           <p class="line-package-old-price" id="line-package-old-price"></p>
           <div class="line-package-actions">
-            <a class="button button-primary wide" id="line-add-friend-link" href="https://line.me/R/ti/p/%40iqon" target="_blank" rel="noreferrer">เพิ่มเพื่อนทาง LINE</a>
-            <a class="button button-secondary wide" id="line-message-link" href="https://line.me/R/oaMessage/%40iqon/" target="_blank" rel="noreferrer">เปิดแชตพร้อมข้อความแพ็กเกจนี้</a>
-            <button class="button button-secondary wide line-qr-download" id="line-qr-download" type="button">บันทึก QR Code LINE</button>
+            <a class="button button-secondary wide" id="line-message-link" href="https://line.me/R/oaMessage/%40iqon/" target="_blank" rel="noreferrer" data-i18n="open_line_chat">เปิดแชตพร้อมข้อความแพ็กเกจนี้</a>
           </div>
           <p class="line-package-note">
             ถ้าเปิดจากมือถือ กดเพิ่มเพื่อนและเปิดแชตได้ทันที
@@ -357,6 +365,10 @@
         <div class="line-package-qr-card">
           <img id="line-package-qr-image" src="" alt="QR Code สำหรับเพิ่มเพื่อน LINE ของ IQON">
           <p>สแกน QR นี้เพื่อเพิ่มเพื่อน แล้วเปิดแชตพร้อมข้อความแพ็กเกจที่สนใจได้ทันที</p>
+          <div class="line-package-qr-actions">
+            <a class="button button-primary wide" id="line-add-friend-link" href="https://line.me/R/ti/p/%40iqon" target="_blank" rel="noreferrer" data-i18n="add_line_friend">เพิ่มเพื่อนทาง LINE</a>
+            <button class="button button-secondary wide line-qr-download" id="line-qr-download" type="button" data-i18n="save_line_qr">บันทึก QR Code LINE</button>
+          </div>
         </div>
       </div>
     </div>
@@ -365,35 +377,61 @@
   <div class="support-widget" data-support-widget>
     <div class="support-panel hidden" data-support-panel>
       <div class="support-panel-header">
-        <div>
+        <div class="support-panel-header-main">
           <span class="support-dot"></span>
-          <strong>IQON Assistant</strong>
+          <div class="support-panel-header-copy">
+            <strong>IQON Assistant</strong>
+            <small data-i18n="support_header_subtitle">แชตสอบถามแพ็กเกจและรายละเอียดคอร์สได้ทันที</small>
+          </div>
         </div>
         <button class="support-close" type="button" aria-label="ปิดหน้าต่างแชต" data-support-close>×</button>
       </div>
       <div class="support-body">
-        <div class="support-message">
-          <span class="support-time">หน้าคอร์ส</span>
-          <p>หากยังไม่แน่ใจว่าจะเลือกแพ็กเกจไหน ลองพิมพ์วิชาที่สนใจหรือระดับชั้นไว้ได้เลย แล้วไปคุยต่อผ่าน Line หรือ Facebook ได้ทันทีค่ะ</p>
-        </div>
+        <div class="support-thread" data-support-thread aria-live="polite"></div>
         <div class="support-quick-actions">
-          <a href="https://lin.ee/fOA2NDf2" target="_blank" rel="noreferrer">คุยผ่าน Line</a>
-          <a href="https://www.facebook.com/profile.php?id=61578446523794&locale=th_TH" target="_blank" rel="noreferrer">Facebook</a>
-          <a href="tel:0941748919">โทรหาเรา</a>
+          <button type="button" data-quick-message="สนใจแพ็กเกจเดี่ยวค่ะ" data-i18n="support_quick_solo">แพ็กเกจเดี่ยว</button>
+          <button type="button" data-quick-message="สนใจแพ็กเกจคู่ค่ะ" data-i18n="support_quick_pair">แพ็กเกจคู่</button>
+          <button type="button" data-quick-message="ช่วยแนะนำแพ็กเกจที่เหมาะกับฉันหน่อยค่ะ" data-i18n="support_quick_recommend">แนะนำแพ็กเกจ</button>
         </div>
       </div>
       <form class="support-input-row" data-support-form>
-        <input type="text" name="support_message" placeholder="พิมพ์คำถาม เช่น สนใจคอร์สคู่ 2 วิชา" maxlength="180">
-        <button type="submit">ส่ง</button>
+        <input type="text" name="support_message" placeholder="พิมพ์คำถาม เช่น สนใจคอร์สคู่ 2 วิชา" maxlength="180" data-i18n-placeholder="support_input_placeholder">
+        <button type="submit" data-i18n="send">ส่ง</button>
       </form>
+      <p class="support-status" data-support-status aria-live="polite"></p>
     </div>
 
     <div class="support-fab-stack">
-      <a class="support-mini-fab support-mini-phone" href="tel:0941748919" aria-label="โทรหา IQON">
-        <span>โทร</span>
-      </a>
+      <div class="support-contact-menu" data-contact-menu>
+        <div class="support-contact-links hidden" data-contact-links>
+          <a
+            class="support-contact-link"
+            href="https://lin.ee/fOA2NDf2"
+            target="_blank"
+            rel="noreferrer"
+          data-i18n="line"
+          >Line</a>
+          <a
+            class="support-contact-link"
+            href="https://www.facebook.com/profile.php?id=61578446523794&locale=th_TH"
+            target="_blank"
+            rel="noreferrer"
+          data-i18n="facebook"
+          >Facebook</a>
+          <a class="support-contact-link" href="tel:0941748919" data-i18n="phone">เบอร์โทร</a>
+        </div>
+        <button
+          class="support-mini-fab support-contact-trigger"
+          type="button"
+          aria-expanded="false"
+          aria-label="เปิดเมนูติดต่อ"
+          data-contact-open
+        >
+          <span data-i18n="menu">เมนู</span>
+        </button>
+      </div>
       <button class="support-launcher" type="button" aria-expanded="false" aria-label="เปิดผู้ช่วยแชต" data-support-open>
-        <span class="support-launcher-text">ถามเรื่องคอร์ส</span>
+        <span class="support-launcher-text" data-i18n="chat_with_iqon">ถามเรื่องคอร์ส</span>
         <span class="support-launcher-icon">💬</span>
       </button>
     </div>

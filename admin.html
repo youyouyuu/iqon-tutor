@@ -86,11 +86,43 @@
             <div class="metric" id="metric-latest">-</div>
             <p class="metric-label">เวลาของรายการล่าสุด</p>
           </article>
+          <article class="admin-card">
+            <h3>ห้องแชตทั้งหมด</h3>
+            <div class="metric" id="metric-chats">0</div>
+            <p class="metric-label">จำนวนห้องแชตจากหน้าเว็บ</p>
+          </article>
         </div>
+
+        <section class="admin-chat-layout">
+          <section class="table-card admin-chat-sidebar">
+            <h3>แชตจากหน้าเว็บ</h3>
+            <p class="helper-text">ข้อความจะรีเฟรชอัตโนมัติทุก 3 วินาที</p>
+            <div class="admin-chat-conversations" id="chat-conversation-list">
+              <div class="empty-state">ยังไม่มีห้องแชต</div>
+            </div>
+          </section>
+
+          <section class="table-card admin-chat-main">
+            <div class="admin-chat-main-head">
+              <div>
+                <h3 id="chat-room-title">เลือกห้องแชต</h3>
+                <p class="helper-text" id="chat-room-meta">เมื่อมีข้อความจากหน้าเว็บ รายการจะขึ้นที่นี่</p>
+              </div>
+            </div>
+            <div class="admin-chat-thread" id="admin-chat-thread">
+              <div class="empty-state">ยังไม่ได้เลือกห้องแชต</div>
+            </div>
+            <form class="admin-chat-reply" id="admin-chat-form">
+              <input type="text" id="admin-chat-input" placeholder="พิมพ์ข้อความตอบกลับถึงผู้ใช้" maxlength="800" disabled>
+              <button class="button button-primary" type="submit" id="admin-chat-send" disabled>ส่งตอบกลับ</button>
+            </form>
+            <p class="form-status" id="admin-chat-status" aria-live="polite"></p>
+          </section>
+        </section>
 
         <section class="table-card">
           <h3>รายการผู้สนใจเรียนล่าสุด</h3>
-          <p class="helper-text">ระบบจะดึงข้อมูลใหม่อัตโนมัติทุก 15 วินาที</p>
+          <p class="helper-text">ระบบจะดึงข้อมูลใหม่อัตโนมัติทุก 3 วินาที</p>
           <div class="table-scroll">
             <table class="data-table">
               <thead>

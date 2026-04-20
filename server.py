@@ -5,12 +5,13 @@ import json
 import os
 import re
 import sqlite3
+import uuid
 from datetime import datetime
 from http import HTTPStatus
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, urlparse
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -22,6 +23,7 @@ PORT = int(os.getenv("PORT", os.getenv("APP_PORT", "8000")))
 ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "admin")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "change-me")
 PHONE_PATTERN = re.compile(r"^0\d{9}$")
+CHAT_MESSAGE_LIMIT = 800
 
 
 def utc_now() -> str:
@@ -47,6 +49,28 @@ def ensure_storage() -> None:
             )
             """
         )
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS chat_conversations (
+                id TEXT PRIMARY KEY,
+                source_page TEXT NOT NULL DEFAULT '',
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL
+            )
+            """
+        )
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS chat_messages (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                conversation_id TEXT NOT NULL,
+                sender TEXT NOT NULL,
+                message TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                FOREIGN KEY (conversation_id) REFERENCES chat_conversations(id) ON DELETE CASCADE
+            )
+            """
+        )
         columns = {
             row[1]
             for row in connection.execute("PRAGMA table_info(inquiries)").fetchall()
@@ -69,6 +93,7 @@ def ensure_storage() -> None:
 def get_connection() -> sqlite3.Connection:
     connection = sqlite3.connect(DATABASE_PATH)
     connection.row_factory = sqlite3.Row
+    connection.execute("PRAGMA foreign_keys = ON")
     return connection
 
 
@@ -78,6 +103,10 @@ def normalize_phone(value: str) -> str:
 
 def is_valid_phone(value: str) -> bool:
     return bool(PHONE_PATTERN.fullmatch(normalize_phone(value)))
+
+
+def is_valid_conversation_id(value: str) -> bool:
+    return bool(re.fullmatch(r"[A-Za-z0-9_-]{8,80}", value or ""))
 
 
 class AppHandler(SimpleHTTPRequestHandler):
@@ -92,10 +121,23 @@ class AppHandler(SimpleHTTPRequestHandler):
         super().end_headers()
 
     def do_GET(self) -> None:  # noqa: N802
-        path = urlparse(self.path).path
+        parsed = urlparse(self.path)
+        path = parsed.path
+        query = parse_qs(parsed.query)
 
         if path == "/api/health":
             self.respond_json(HTTPStatus.OK, {"ok": True, "status": "healthy", "time": utc_now()})
+            return
+
+        if path == "/api/chat/messages":
+            conversation_id = str(query.get("conversation_id", [""])[0]).strip()
+            if not is_valid_conversation_id(conversation_id):
+                self.respond_json(
+                    HTTPStatus.BAD_REQUEST,
+                    {"ok": False, "error": "Invalid conversation id"},
+                )
+                return
+            self.handle_public_chat_messages(conversation_id)
             return
 
         if path == "/api/admin/stats":
@@ -110,13 +152,33 @@ class AppHandler(SimpleHTTPRequestHandler):
             self.handle_admin_inquiries()
             return
 
+        if path == "/api/admin/chat/conversations":
+            if not self.require_admin_auth():
+                return
+            self.handle_admin_chat_conversations()
+            return
+
+        if path == "/api/admin/chat/messages":
+            if not self.require_admin_auth():
+                return
+            conversation_id = str(query.get("conversation_id", [""])[0]).strip()
+            if not is_valid_conversation_id(conversation_id):
+                self.respond_json(
+                    HTTPStatus.BAD_REQUEST,
+                    {"ok": False, "error": "Invalid conversation id"},
+                )
+                return
+            self.handle_admin_chat_messages(conversation_id)
+            return
+
         if path == "/admin":
             self.path = "/admin.html"
 
         super().do_GET()
 
     def do_POST(self) -> None:  # noqa: N802
-        path = urlparse(self.path).path
+        parsed = urlparse(self.path)
+        path = parsed.path
 
         if path == "/api/admin/login":
             payload = self.read_json_body()
@@ -131,6 +193,22 @@ class AppHandler(SimpleHTTPRequestHandler):
                 return
 
             self.respond_json(HTTPStatus.OK, {"ok": True, "message": "Login successful"})
+            return
+
+        if path == "/api/chat/messages":
+            payload = self.read_json_body()
+            if payload is None:
+                return
+            self.handle_public_chat_send(payload)
+            return
+
+        if path == "/api/admin/chat/messages":
+            if not self.require_admin_auth():
+                return
+            payload = self.read_json_body()
+            if payload is None:
+                return
+            self.handle_admin_chat_send(payload)
             return
 
         if path != "/api/contact":
@@ -206,6 +284,9 @@ class AppHandler(SimpleHTTPRequestHandler):
                 "SELECT COUNT(*) AS total FROM inquiries WHERE substr(created_at, 1, 10) = ?",
                 (datetime.utcnow().strftime("%Y-%m-%d"),),
             ).fetchone()["total"]
+            open_chats = connection.execute(
+                "SELECT COUNT(*) AS total FROM chat_conversations"
+            ).fetchone()["total"]
 
         self.respond_json(
             HTTPStatus.OK,
@@ -215,6 +296,7 @@ class AppHandler(SimpleHTTPRequestHandler):
                     "total_inquiries": total,
                     "today_inquiries": today,
                     "latest_inquiry_at": latest["created_at"] if latest else None,
+                    "chat_conversations": open_chats,
                 },
             },
         )
@@ -241,6 +323,212 @@ class AppHandler(SimpleHTTPRequestHandler):
             ).fetchall()
 
         self.respond_json(HTTPStatus.OK, {"ok": True, "inquiries": [dict(row) for row in rows]})
+
+    def handle_public_chat_messages(self, conversation_id: str) -> None:
+        with get_connection() as connection:
+            conversation = connection.execute(
+                """
+                SELECT id, source_page, created_at, updated_at
+                FROM chat_conversations
+                WHERE id = ?
+                """,
+                (conversation_id,),
+            ).fetchone()
+            if conversation is None:
+                self.respond_json(
+                    HTTPStatus.OK,
+                    {"ok": True, "conversation": None, "messages": []},
+                )
+                return
+
+            rows = connection.execute(
+                """
+                SELECT id, sender, message, created_at
+                FROM chat_messages
+                WHERE conversation_id = ?
+                ORDER BY id ASC
+                """,
+                (conversation_id,),
+            ).fetchall()
+
+        self.respond_json(
+            HTTPStatus.OK,
+            {
+                "ok": True,
+                "conversation": dict(conversation),
+                "messages": [dict(row) for row in rows],
+            },
+        )
+
+    def handle_public_chat_send(self, payload: dict[str, Any]) -> None:
+        conversation_id = str(payload.get("conversation_id", "")).strip()
+        source_page = str(payload.get("source_page", "")).strip()[:120]
+        message = str(payload.get("message", "")).strip()
+
+        if not is_valid_conversation_id(conversation_id):
+            self.respond_json(HTTPStatus.BAD_REQUEST, {"ok": False, "error": "Invalid conversation id"})
+            return
+        if not message:
+            self.respond_json(HTTPStatus.BAD_REQUEST, {"ok": False, "error": "Message is required"})
+            return
+        if len(message) > CHAT_MESSAGE_LIMIT:
+            self.respond_json(HTTPStatus.BAD_REQUEST, {"ok": False, "error": "Message is too long"})
+            return
+
+        now = utc_now()
+        with get_connection() as connection:
+            connection.execute(
+                """
+                INSERT INTO chat_conversations (id, source_page, created_at, updated_at)
+                VALUES (?, ?, ?, ?)
+                ON CONFLICT(id) DO UPDATE SET
+                    source_page = excluded.source_page,
+                    updated_at = excluded.updated_at
+                """,
+                (conversation_id, source_page, now, now),
+            )
+            connection.execute(
+                """
+                INSERT INTO chat_messages (conversation_id, sender, message, created_at)
+                VALUES (?, 'user', ?, ?)
+                """,
+                (conversation_id, message, now),
+            )
+            connection.commit()
+
+        self.respond_json(
+            HTTPStatus.OK,
+            {
+                "ok": True,
+                "conversation_id": conversation_id,
+                "message": {
+                    "sender": "user",
+                    "message": message,
+                    "created_at": now,
+                },
+            },
+        )
+
+    def handle_admin_chat_conversations(self) -> None:
+        with get_connection() as connection:
+            rows = connection.execute(
+                """
+                SELECT
+                    c.id,
+                    c.source_page,
+                    c.created_at,
+                    c.updated_at,
+                    (
+                        SELECT m.message
+                        FROM chat_messages m
+                        WHERE m.conversation_id = c.id
+                        ORDER BY m.id DESC
+                        LIMIT 1
+                    ) AS latest_message,
+                    (
+                        SELECT m.sender
+                        FROM chat_messages m
+                        WHERE m.conversation_id = c.id
+                        ORDER BY m.id DESC
+                        LIMIT 1
+                    ) AS latest_sender,
+                    (
+                        SELECT COUNT(*)
+                        FROM chat_messages m
+                        WHERE m.conversation_id = c.id
+                    ) AS message_count
+                FROM chat_conversations c
+                ORDER BY c.updated_at DESC
+                LIMIT 100
+                """
+            ).fetchall()
+
+        self.respond_json(
+            HTTPStatus.OK,
+            {"ok": True, "conversations": [dict(row) for row in rows]},
+        )
+
+    def handle_admin_chat_messages(self, conversation_id: str) -> None:
+        with get_connection() as connection:
+            conversation = connection.execute(
+                """
+                SELECT id, source_page, created_at, updated_at
+                FROM chat_conversations
+                WHERE id = ?
+                """,
+                (conversation_id,),
+            ).fetchone()
+            if conversation is None:
+                self.respond_json(HTTPStatus.NOT_FOUND, {"ok": False, "error": "Conversation not found"})
+                return
+
+            rows = connection.execute(
+                """
+                SELECT id, sender, message, created_at
+                FROM chat_messages
+                WHERE conversation_id = ?
+                ORDER BY id ASC
+                """,
+                (conversation_id,),
+            ).fetchall()
+
+        self.respond_json(
+            HTTPStatus.OK,
+            {
+                "ok": True,
+                "conversation": dict(conversation),
+                "messages": [dict(row) for row in rows],
+            },
+        )
+
+    def handle_admin_chat_send(self, payload: dict[str, Any]) -> None:
+        conversation_id = str(payload.get("conversation_id", "")).strip()
+        message = str(payload.get("message", "")).strip()
+
+        if not is_valid_conversation_id(conversation_id):
+            self.respond_json(HTTPStatus.BAD_REQUEST, {"ok": False, "error": "Invalid conversation id"})
+            return
+        if not message:
+            self.respond_json(HTTPStatus.BAD_REQUEST, {"ok": False, "error": "Message is required"})
+            return
+        if len(message) > CHAT_MESSAGE_LIMIT:
+            self.respond_json(HTTPStatus.BAD_REQUEST, {"ok": False, "error": "Message is too long"})
+            return
+
+        now = utc_now()
+        with get_connection() as connection:
+            exists = connection.execute(
+                "SELECT id FROM chat_conversations WHERE id = ?",
+                (conversation_id,),
+            ).fetchone()
+            if exists is None:
+                self.respond_json(HTTPStatus.NOT_FOUND, {"ok": False, "error": "Conversation not found"})
+                return
+
+            connection.execute(
+                """
+                INSERT INTO chat_messages (conversation_id, sender, message, created_at)
+                VALUES (?, 'admin', ?, ?)
+                """,
+                (conversation_id, message, now),
+            )
+            connection.execute(
+                "UPDATE chat_conversations SET updated_at = ? WHERE id = ?",
+                (now, conversation_id),
+            )
+            connection.commit()
+
+        self.respond_json(
+            HTTPStatus.OK,
+            {
+                "ok": True,
+                "message": {
+                    "sender": "admin",
+                    "message": message,
+                    "created_at": now,
+                },
+            },
+        )
 
     def validate_contact_payload(
         self,
