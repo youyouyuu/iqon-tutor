@@ -150,21 +150,6 @@
             </div>
 
             <!-- กล่องข้อมูลด้านขวาของ hero: แก้โปรโมชัน ราคา และช่องทางติดต่อ -->
-            <div class="hero-status-grid">
-              <article class="hero-status-card">
-                <span class="meta-label">วิชาหลัก</span>
-                <strong>คณิต วิทย์ อังกฤษ ฟิสิกส์ เคมี ชีวะ</strong>
-              </article>
-              <article class="hero-status-card">
-                <span class="meta-label">โปรโมชัน</span>
-                <strong>ลด 10% ฟรีสื่อการเรียน และฟรีวัดระดับก่อนเรียน</strong>
-              </article>
-              <article class="hero-status-card hero-status-card-accent">
-                <span class="meta-label">ติดต่อด่วน</span>
-                <strong>094 174 8919</strong>
-                <p>@iqon_tutor • Facebook • Line Official</p>
-              </article>
-            </div>
           </div>
         </div>
       </div>
@@ -431,12 +416,60 @@
           </label>
           <label>
             เบอร์โทรศัพท์
-            <input type="tel" name="phone" placeholder="094 174 8919" required>
+            <input
+              type="tel"
+              name="phone"
+              placeholder="0941748919"
+              inputmode="numeric"
+              autocomplete="tel-national"
+              maxlength="10"
+              minlength="10"
+              pattern="0[0-9]{9}"
+              required
+            >
           </label>
           <label>
             รายละเอียดเพิ่มเติม
             <textarea name="message" rows="4" placeholder="เช่น สนใจคอร์สปูพื้นฐาน หรืออยากสอบถามโปรโมชันเปิดสถาบัน"></textarea>
           </label>
+          <label>
+            เวลาที่สะดวกเพื่อติดต่อ
+            <select name="preferred_time" required>
+              <option value="">เลือกช่วงเวลาที่สะดวก</option>
+              <option>สะดวกทันที</option>
+              <option>9 AM - 12 PM</option>
+              <option>12 PM - 3 PM</option>
+              <option>3 PM - 6 PM</option>
+              <option>6 PM - 8 PM</option>
+            </select>
+          </label>
+          <label class="consent-row">
+            <input type="checkbox" name="consent_contact" value="yes" required>
+            <span>ข้าพเจ้ายินยอมให้สถาบันเก็บข้อมูลเพื่อให้เจ้าหน้าที่ติดต่อกลับเพื่อนำเสนอรายละเอียดเพิ่มเติม</span>
+          </label>
+          <details class="consent-details">
+            <summary>รายละเอียดเพิ่มเติม</summary>
+            <div class="consent-details-body">
+              <p>สถาบันจะใช้ข้อมูลที่คุณกรอกไว้เพื่อการติดต่อกลับเกี่ยวกับคอร์สเรียน โปรโมชัน รอบเรียน และการให้คำแนะนำที่เหมาะกับผู้เรียนเท่านั้น</p>
+              <p>ข้อมูลที่ใช้ได้แก่ ชื่อ ระดับชั้น วิชาที่สนใจ เบอร์โทรศัพท์ เวลาที่สะดวก และรายละเอียดที่คุณพิมพ์เพิ่มเติม โดยจะไม่ถูกนำไปใช้เพื่อวัตถุประสงค์อื่นที่ไม่เกี่ยวข้องกับการให้บริการของ IQON</p>
+            </div>
+          </details>
+          <label class="consent-row">
+            <input type="checkbox" name="consent_terms" value="yes" required>
+            <span>ข้าพเจ้าได้อ่านและยอมรับ ข้อกำหนดและนโยบายความเป็นส่วนตัว</span>
+          </label>
+          <details class="consent-details">
+            <summary>อ่านข้อกำหนดและนโยบายความเป็นส่วนตัว</summary>
+            <div class="consent-details-body">
+              <p><strong>ข้อกำหนดการใช้งาน</strong> การส่งแบบฟอร์มนี้ถือว่าผู้กรอกยืนยันว่าข้อมูลที่ให้ไว้เป็นข้อมูลจริง เพื่อให้สถาบันสามารถติดต่อกลับและแนะนำคอร์สเรียนได้อย่างเหมาะสม</p>
+              <p><strong>นโยบายความเป็นส่วนตัว</strong> IQON จะเก็บข้อมูลเฉพาะที่จำเป็นต่อการติดต่อกลับและการให้บริการด้านการเรียนการสอนเท่านั้น และจะดูแลข้อมูลอย่างเหมาะสม ไม่เผยแพร่ต่อสาธารณะโดยไม่ได้รับอนุญาต</p>
+              <p><strong>ระยะเวลาการเก็บข้อมูล</strong> ข้อมูลจะถูกเก็บไว้ในระบบเท่าที่จำเป็นต่อการติดตามผลการติดต่อและการให้บริการของสถาบัน</p>
+            </div>
+          </details>
+          <div class="contact-response-note">
+            <strong>ระยะเวลาติดต่อกลับ</strong>
+            <p>เจ้าหน้าที่จะพยายามติดต่อกลับภายใน 1-3 ชั่วโมงในช่วงเวลาทำการที่เลือกไว้ และไม่เกิน 24 ชั่วโมงในกรณีส่งข้อมูลนอกช่วงเวลาทำการ</p>
+          </div>
           <button class="button button-primary wide" type="submit">ส่งข้อมูลเพื่อให้สถาบันติดต่อกลับ</button>
           <a
             class="button button-secondary wide social-button"
@@ -466,6 +499,43 @@
       <p>© 2026 IQON Tutor. All rights reserved.</p>
     </div>
   </footer>
+
+  <div class="support-widget" data-support-widget>
+    <div class="support-panel hidden" data-support-panel>
+      <div class="support-panel-header">
+        <div>
+          <span class="support-dot"></span>
+          <strong>IQON Assistant</strong>
+        </div>
+        <button class="support-close" type="button" aria-label="ปิดหน้าต่างแชต" data-support-close>×</button>
+      </div>
+      <div class="support-body">
+        <div class="support-message">
+          <span class="support-time">วันนี้</span>
+          <p>สวัสดีค่ะ หากสนใจคอร์สเรียนหรือโปรโมชันของ IQON สามารถพิมพ์คำถามไว้ได้เลย ทีมงานจะช่วยแนะนำช่องทางติดต่อที่เหมาะกับคุณค่ะ</p>
+        </div>
+        <div class="support-quick-actions">
+          <a href="https://lin.ee/fOA2NDf2" target="_blank" rel="noreferrer">คุยผ่าน Line</a>
+          <a href="https://www.facebook.com/profile.php?id=61578446523794&locale=th_TH" target="_blank" rel="noreferrer">Facebook</a>
+          <a href="tel:0941748919">โทรหาเรา</a>
+        </div>
+      </div>
+      <form class="support-input-row" data-support-form>
+        <input type="text" name="support_message" placeholder="พิมพ์คำถาม เช่น สนใจคอร์สคณิต ม.ปลาย" maxlength="180">
+        <button type="submit">ส่ง</button>
+      </form>
+    </div>
+
+    <div class="support-fab-stack">
+      <a class="support-mini-fab support-mini-phone" href="tel:0941748919" aria-label="โทรหา IQON">
+        <span>โทร</span>
+      </a>
+      <button class="support-launcher" type="button" aria-expanded="false" aria-label="เปิดผู้ช่วยแชต" data-support-open>
+        <span class="support-launcher-text">แชตกับ IQON</span>
+        <span class="support-launcher-icon">💬</span>
+      </button>
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>

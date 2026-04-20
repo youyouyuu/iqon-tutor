@@ -13,6 +13,25 @@ const tableBody = document.querySelector("#inquiry-table-body");
 let authToken = sessionStorage.getItem("adminAuthToken");
 let refreshHandle = null;
 
+async function loginRequest(username, password) {
+  const response = await fetch("/api/admin/login", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ username, password }),
+  });
+
+  const payload = await response.json();
+  if (!response.ok || !payload.ok) {
+    const error = new Error(payload.error || "Login failed");
+    error.status = response.status;
+    throw error;
+  }
+
+  return payload;
+}
+
 async function fetchJson(path) {
   const response = await fetch(path, {
     headers: {
@@ -26,7 +45,20 @@ async function fetchJson(path) {
     error.status = response.status;
     throw error;
   }
+
   return payload;
+}
+
+function setLoginErrorMessage(error) {
+  if (!loginStatus) {
+    return;
+  }
+
+  loginStatus.textContent =
+    error?.status === 401
+      ? "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง"
+      : "ไม่สามารถเชื่อมต่อระบบได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง";
+  loginStatus.className = "form-status is-error";
 }
 
 function formatDate(value) {
@@ -52,7 +84,7 @@ function renderTable(inquiries) {
   if (!inquiries.length) {
     tableBody.innerHTML = `
       <tr>
-        <td colspan="6" class="empty-state">ยังไม่มีข้อมูลในระบบ</td>
+        <td colspan="8" class="empty-state">ยังไม่มีข้อมูลในระบบ</td>
       </tr>
     `;
     return;
@@ -67,6 +99,8 @@ function renderTable(inquiries) {
           <td><span class="badge">${item.level}</span></td>
           <td>${item.subject}</td>
           <td>${item.phone}</td>
+          <td>${item.preferred_time || "-"}</td>
+          <td>${item.consent_contact && item.consent_terms ? "ครบ" : "ไม่ครบ"}</td>
           <td>${item.message || "-"}</td>
         </tr>
       `,
@@ -80,9 +114,18 @@ async function loadDashboard() {
     fetchJson("/api/admin/inquiries"),
   ]);
 
-  totalMetric.textContent = String(statsPayload.stats.total_inquiries);
-  todayMetric.textContent = String(statsPayload.stats.today_inquiries);
-  latestMetric.textContent = formatDate(statsPayload.stats.latest_inquiry_at);
+  if (totalMetric) {
+    totalMetric.textContent = String(statsPayload.stats.total_inquiries);
+  }
+
+  if (todayMetric) {
+    todayMetric.textContent = String(statsPayload.stats.today_inquiries);
+  }
+
+  if (latestMetric) {
+    latestMetric.textContent = formatDate(statsPayload.stats.latest_inquiry_at);
+  }
+
   renderTable(inquiriesPayload.inquiries);
 }
 
@@ -93,41 +136,83 @@ async function startDashboard() {
 
   try {
     await loadDashboard();
-    loginCard.classList.add("hidden");
-    dashboard.classList.remove("hidden");
+
+    if (loginCard) {
+      loginCard.classList.add("hidden");
+    }
+
+    if (dashboard) {
+      dashboard.classList.remove("hidden");
+    }
 
     if (refreshHandle) {
       window.clearInterval(refreshHandle);
     }
-    refreshHandle = window.setInterval(loadDashboard, 15000);
+
+    refreshHandle = window.setInterval(async () => {
+      try {
+        await loadDashboard();
+      } catch (error) {
+        window.clearInterval(refreshHandle);
+        refreshHandle = null;
+        sessionStorage.removeItem("adminAuthToken");
+        authToken = null;
+
+        if (dashboard) {
+          dashboard.classList.add("hidden");
+        }
+
+        if (loginCard) {
+          loginCard.classList.remove("hidden");
+        }
+
+        setLoginErrorMessage(error);
+      }
+    }, 15000);
   } catch (error) {
     sessionStorage.removeItem("adminAuthToken");
     authToken = null;
-    dashboard.classList.add("hidden");
-    loginCard.classList.remove("hidden");
-    loginStatus.textContent =
-      error.status === 401
-        ? "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง"
-        : "ไม่สามารถเชื่อมต่อระบบได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง";
-    loginStatus.className = "form-status is-error";
+
+    if (dashboard) {
+      dashboard.classList.add("hidden");
+    }
+
+    if (loginCard) {
+      loginCard.classList.remove("hidden");
+    }
+
+    setLoginErrorMessage(error);
   }
 }
 
 if (loginForm) {
   loginForm.addEventListener("submit", async (event) => {
     event.preventDefault();
-    loginStatus.textContent = "กำลังตรวจสอบข้อมูลเข้าสู่ระบบ...";
-    loginStatus.className = "form-status";
 
-    authToken = btoa(`${usernameInput.value}:${passwordInput.value}`);
-    sessionStorage.setItem("adminAuthToken", authToken);
-    await startDashboard();
+    if (loginStatus) {
+      loginStatus.textContent = "กำลังตรวจสอบข้อมูลเข้าสู่ระบบ...";
+      loginStatus.className = "form-status";
+    }
 
-    if (dashboard.classList.contains("hidden")) {
+    try {
+      await loginRequest(usernameInput.value, passwordInput.value);
+      authToken = btoa(`${usernameInput.value}:${passwordInput.value}`);
+      sessionStorage.setItem("adminAuthToken", authToken);
+      await startDashboard();
+    } catch (error) {
+      sessionStorage.removeItem("adminAuthToken");
+      authToken = null;
+      setLoginErrorMessage(error);
       return;
     }
 
-    loginStatus.textContent = "";
+    if (dashboard?.classList.contains("hidden")) {
+      return;
+    }
+
+    if (loginStatus) {
+      loginStatus.textContent = "";
+    }
   });
 }
 
@@ -136,10 +221,7 @@ if (passwordToggle && passwordInput) {
     const isHidden = passwordInput.type === "password";
     passwordInput.type = isHidden ? "text" : "password";
     passwordToggle.setAttribute("aria-pressed", String(isHidden));
-    passwordToggle.setAttribute(
-      "aria-label",
-      isHidden ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน",
-    );
+    passwordToggle.setAttribute("aria-label", isHidden ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน");
     passwordToggle.classList.toggle("is-active", isHidden);
   });
 }

@@ -14,13 +14,14 @@ from urllib.parse import urlparse
 
 
 BASE_DIR = Path(__file__).resolve().parent
-DATA_DIR = BASE_DIR / "data"
-DATABASE_PATH = DATA_DIR / "brightpath.db"
+DEFAULT_DATA_DIR = Path("/var/data") if Path("/var/data").exists() else BASE_DIR / "data"
+DATA_DIR = Path(os.getenv("DATA_DIR", str(DEFAULT_DATA_DIR))).resolve()
+DATABASE_PATH = Path(os.getenv("DATABASE_PATH", str(DATA_DIR / "brightpath.db"))).resolve()
 HOST = os.getenv("APP_HOST", "0.0.0.0")
 PORT = int(os.getenv("PORT", os.getenv("APP_PORT", "8000")))
 ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "admin")
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "change-me")
-PHONE_PATTERN = re.compile(r"^[0-9+\-\s]{8,20}$")
+PHONE_PATTERN = re.compile(r"^0\d{9}$")
 
 
 def utc_now() -> str:
@@ -28,7 +29,7 @@ def utc_now() -> str:
 
 
 def ensure_storage() -> None:
-    DATA_DIR.mkdir(exist_ok=True)
+    DATABASE_PATH.parent.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(DATABASE_PATH) as connection:
         connection.execute(
             """
@@ -38,11 +39,30 @@ def ensure_storage() -> None:
                 level TEXT NOT NULL,
                 subject TEXT NOT NULL,
                 phone TEXT NOT NULL,
+                preferred_time TEXT NOT NULL DEFAULT '',
+                consent_contact INTEGER NOT NULL DEFAULT 0,
+                consent_terms INTEGER NOT NULL DEFAULT 0,
                 message TEXT NOT NULL,
                 created_at TEXT NOT NULL
             )
             """
         )
+        columns = {
+            row[1]
+            for row in connection.execute("PRAGMA table_info(inquiries)").fetchall()
+        }
+        if "preferred_time" not in columns:
+            connection.execute(
+                "ALTER TABLE inquiries ADD COLUMN preferred_time TEXT NOT NULL DEFAULT ''"
+            )
+        if "consent_contact" not in columns:
+            connection.execute(
+                "ALTER TABLE inquiries ADD COLUMN consent_contact INTEGER NOT NULL DEFAULT 0"
+            )
+        if "consent_terms" not in columns:
+            connection.execute(
+                "ALTER TABLE inquiries ADD COLUMN consent_terms INTEGER NOT NULL DEFAULT 0"
+            )
         connection.commit()
 
 
@@ -52,8 +72,12 @@ def get_connection() -> sqlite3.Connection:
     return connection
 
 
+def normalize_phone(value: str) -> str:
+    return re.sub(r"\D", "", value or "")
+
+
 def is_valid_phone(value: str) -> bool:
-    return bool(PHONE_PATTERN.fullmatch(value.strip()))
+    return bool(PHONE_PATTERN.fullmatch(normalize_phone(value)))
 
 
 class AppHandler(SimpleHTTPRequestHandler):
@@ -94,6 +118,21 @@ class AppHandler(SimpleHTTPRequestHandler):
     def do_POST(self) -> None:  # noqa: N802
         path = urlparse(self.path).path
 
+        if path == "/api/admin/login":
+            payload = self.read_json_body()
+            if payload is None:
+                return
+
+            username = str(payload.get("username", "")).strip()
+            password = str(payload.get("password", ""))
+
+            if username != ADMIN_USERNAME or password != ADMIN_PASSWORD:
+                self.respond_json(HTTPStatus.UNAUTHORIZED, {"ok": False, "error": "Unauthorized"})
+                return
+
+            self.respond_json(HTTPStatus.OK, {"ok": True, "message": "Login successful"})
+            return
+
         if path != "/api/contact":
             self.respond_json(HTTPStatus.NOT_FOUND, {"ok": False, "error": "Endpoint not found"})
             return
@@ -105,10 +144,22 @@ class AppHandler(SimpleHTTPRequestHandler):
         name = str(payload.get("name", "")).strip()
         level = str(payload.get("level", "")).strip()
         subject = str(payload.get("subject", "")).strip()
-        phone = str(payload.get("phone", "")).strip()
+        phone = normalize_phone(str(payload.get("phone", "")))
+        preferred_time = str(payload.get("preferred_time", "")).strip()
+        consent_contact = bool(payload.get("consent_contact"))
+        consent_terms = bool(payload.get("consent_terms"))
         message = str(payload.get("message", "")).strip()
 
-        validation_error = self.validate_contact_payload(name, level, subject, phone, message)
+        validation_error = self.validate_contact_payload(
+            name,
+            level,
+            subject,
+            phone,
+            preferred_time,
+            consent_contact,
+            consent_terms,
+            message,
+        )
         if validation_error:
             self.respond_json(HTTPStatus.BAD_REQUEST, {"ok": False, "error": validation_error})
             return
@@ -116,10 +167,30 @@ class AppHandler(SimpleHTTPRequestHandler):
         with get_connection() as connection:
             connection.execute(
                 """
-                INSERT INTO inquiries (name, level, subject, phone, message, created_at)
-                VALUES (?, ?, ?, ?, ?, ?)
+                INSERT INTO inquiries (
+                    name,
+                    level,
+                    subject,
+                    phone,
+                    preferred_time,
+                    consent_contact,
+                    consent_terms,
+                    message,
+                    created_at
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
-                (name, level, subject, phone, message, utc_now()),
+                (
+                    name,
+                    level,
+                    subject,
+                    phone,
+                    preferred_time,
+                    int(consent_contact),
+                    int(consent_terms),
+                    message,
+                    utc_now(),
+                ),
             )
             connection.commit()
 
@@ -152,7 +223,17 @@ class AppHandler(SimpleHTTPRequestHandler):
         with get_connection() as connection:
             rows = connection.execute(
                 """
-                SELECT id, name, level, subject, phone, message, created_at
+                SELECT
+                    id,
+                    name,
+                    level,
+                    subject,
+                    phone,
+                    preferred_time,
+                    consent_contact,
+                    consent_terms,
+                    message,
+                    created_at
                 FROM inquiries
                 ORDER BY id DESC
                 LIMIT 100
@@ -167,6 +248,9 @@ class AppHandler(SimpleHTTPRequestHandler):
         level: str,
         subject: str,
         phone: str,
+        preferred_time: str,
+        consent_contact: bool,
+        consent_terms: bool,
         message: str,
     ) -> str | None:
         if len(name) < 2:
@@ -176,7 +260,13 @@ class AppHandler(SimpleHTTPRequestHandler):
         if not subject:
             return "กรุณาเลือกรายวิชา"
         if not is_valid_phone(phone):
-            return "รูปแบบเบอร์โทรศัพท์ไม่ถูกต้อง"
+            return "กรุณากรอกเบอร์โทรศัพท์ไทย 10 หลัก"
+        if not preferred_time:
+            return "กรุณาเลือกเวลาที่สะดวกให้เจ้าหน้าที่ติดต่อกลับ"
+        if not consent_contact:
+            return "กรุณายินยอมให้สถาบันติดต่อกลับ"
+        if not consent_terms:
+            return "กรุณายอมรับข้อกำหนดและนโยบายความเป็นส่วนตัว"
         if len(message) > 1000:
             return "ข้อความเพิ่มเติมยาวเกินกำหนด"
         return None
@@ -211,7 +301,6 @@ class AppHandler(SimpleHTTPRequestHandler):
 
     def request_auth(self) -> None:
         self.send_response(HTTPStatus.UNAUTHORIZED)
-        self.send_header("WWW-Authenticate", 'Basic realm="BrightPath Admin"')
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.end_headers()
         self.wfile.write(json.dumps({"ok": False, "error": "Unauthorized"}).encode("utf-8"))
