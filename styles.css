@@ -1477,6 +1477,7 @@ label {
 
 .support-panel {
   width: min(380px, calc(100vw - 1.4rem));
+  min-height: 470px;
   overflow: hidden;
   border-radius: 26px;
   background:
@@ -1545,7 +1546,7 @@ label {
 .support-body {
   display: grid;
   gap: 0.9rem;
-  padding: 0.95rem 1rem 0.9rem;
+  padding: 1rem 1rem 0.95rem;
   background:
     linear-gradient(180deg, rgba(244, 249, 255, 0.94), rgba(255, 255, 255, 0.98));
 }
@@ -1566,7 +1567,8 @@ label {
 .support-thread {
   display: grid;
   gap: 0.8rem;
-  max-height: 348px;
+  min-height: 250px;
+  max-height: 390px;
   overflow-y: auto;
   padding: 0.15rem 0.2rem 0.15rem 0;
 }
@@ -1630,9 +1632,7 @@ label {
 }
 
 .support-quick-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
+  display: none;
 }
 
 .support-quick-actions a,
@@ -3479,7 +3479,8 @@ body.modal-open {
 
   .support-panel {
     width: min(320px, calc(100vw - 1rem));
-    max-height: min(72svh, 560px);
+    min-height: 500px;
+    max-height: min(78svh, 620px);
     border-radius: 20px;
   }
 
@@ -3527,7 +3528,7 @@ body.modal-open {
   .support-body {
     gap: 0.8rem;
     padding: 0.85rem;
-    max-height: calc(72svh - 165px);
+    max-height: calc(78svh - 160px);
     overflow-y: auto;
   }
 
@@ -3543,9 +3544,7 @@ body.modal-open {
   }
 
   .support-quick-actions {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.55rem;
+    display: none;
   }
 
   .support-quick-actions a,
@@ -3556,7 +3555,8 @@ body.modal-open {
   }
 
   .support-thread {
-    max-height: 260px;
+    min-height: 290px;
+    max-height: 320px;
   }
 
   .admin-chat-main-head {
