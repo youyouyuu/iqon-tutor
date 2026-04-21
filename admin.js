@@ -277,6 +277,11 @@ function renderConversations(conversations) {
     .map((conversation) => {
       const isActive = conversation.id === selectedConversationId;
       const preview = truncateText(conversation.latest_message || "ยังไม่มีข้อความ");
+      const title = conversation.user_name || formatPageLabel(conversation.source_page);
+      const metaParts = [formatDateTime(conversation.updated_at)];
+      if (conversation.user_email) {
+        metaParts.unshift(conversation.user_email);
+      }
       const senderText =
         conversation.latest_sender === "admin"
           ? "ทีมงานตอบล่าสุด"
@@ -292,8 +297,8 @@ function renderConversations(conversations) {
         >
           <div class="admin-chat-conversation-top">
             <div>
-              <div class="admin-chat-conversation-title">${escapeHtml(formatPageLabel(conversation.source_page))}</div>
-              <div class="admin-chat-conversation-meta">${escapeHtml(formatDateTime(conversation.updated_at))}</div>
+              <div class="admin-chat-conversation-title">${escapeHtml(title)}</div>
+              <div class="admin-chat-conversation-meta">${escapeHtml(metaParts.join(" • "))}</div>
             </div>
             <span class="admin-chat-badge">${escapeHtml(String(conversation.message_count || 0))}</span>
           </div>
@@ -323,8 +328,16 @@ function renderChatMessages(conversation, messages) {
     return;
   }
 
-  chatRoomTitle.textContent = `ห้องแชต: ${formatPageLabel(conversation.source_page)}`;
-  chatRoomMeta.textContent = `รหัสห้อง ${conversation.id} • เริ่ม ${formatDateTime(conversation.created_at)} • อัปเดตล่าสุด ${formatDateTime(conversation.updated_at)}`;
+  const roomTitle = conversation.user_name || formatPageLabel(conversation.source_page);
+  const roomMetaParts = [`รหัสห้อง ${conversation.id}`];
+  if (conversation.user_email) {
+    roomMetaParts.push(conversation.user_email);
+  }
+  roomMetaParts.push(`เริ่ม ${formatDateTime(conversation.created_at)}`);
+  roomMetaParts.push(`อัปเดตล่าสุด ${formatDateTime(conversation.updated_at)}`);
+
+  chatRoomTitle.textContent = `ห้องแชต: ${roomTitle}`;
+  chatRoomMeta.textContent = roomMetaParts.join(" • ");
 
   if (!messages.length) {
     chatThread.innerHTML = `<div class="empty-state">ห้องนี้ยังไม่มีข้อความ</div>`;
@@ -332,7 +345,10 @@ function renderChatMessages(conversation, messages) {
     chatThread.innerHTML = messages
       .map((item) => {
         const senderClass = item.sender === "admin" ? "admin-chat-message-admin" : "admin-chat-message-user";
-        const senderLabel = item.sender === "admin" ? "ทีมงาน IQON" : "ผู้เยี่ยมชมเว็บไซต์";
+        const senderLabel =
+          item.sender === "admin"
+            ? "ทีมงาน IQON"
+            : conversation.user_name || conversation.user_email || "สมาชิกเว็บไซต์";
 
         return `
           <article class="admin-chat-message ${senderClass}">

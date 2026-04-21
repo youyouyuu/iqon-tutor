@@ -62,6 +62,20 @@ const contactFields = [
 let supportPollHandle = null;
 let supportConversationId = "";
 let currentLanguage = "th";
+let supportCurrentUser = null;
+let supportAuthMode = "login";
+let supportAuthView = null;
+let supportChatView = null;
+let supportAuthForm = null;
+let supportAuthStatus = null;
+let supportAuthName = null;
+let supportAuthEmail = null;
+let supportAuthPassword = null;
+let supportAuthSubmit = null;
+let supportAuthNameField = null;
+let supportAuthTabs = [];
+let supportUserLabel = null;
+let supportLogoutButton = null;
 
 const safeStorage = {
   get(key) {
@@ -80,14 +94,70 @@ const safeStorage = {
   },
 };
 
+const authTexts = {
+  th: {
+    login_tab: "เข้าสู่ระบบ",
+    register_tab: "สมัครใหม่",
+    copy: "เข้าสู่ระบบก่อนเริ่มแชตกับทีมงาน IQON เพื่อเก็บห้องแชตของคุณแยกเป็นส่วนตัว",
+    name_label: "ชื่อที่ใช้ติดต่อ",
+    email_label: "อีเมล",
+    password_label: "รหัสผ่าน",
+    name_placeholder: "เช่น น้องมินต์",
+    password_placeholder: "อย่างน้อย 8 ตัวอักษร",
+    login_submit: "เข้าสู่ระบบเพื่อเปิดแชต",
+    register_submit: "สมัครสมาชิกและเริ่มแชต",
+    logout: "ออก",
+    welcome: "ยินดีต้อนรับ",
+    login_hint: "ล็อกอินสำเร็จแล้ว สามารถเริ่มพิมพ์ข้อความได้ทันที",
+    guest_status: "กรุณาเข้าสู่ระบบหรือสมัครสมาชิกก่อนเริ่มแชต",
+    sending: "กำลังตรวจสอบข้อมูล...",
+    required_name: "กรุณากรอกชื่อให้ครบถ้วน",
+    required_email: "กรุณากรอกอีเมลให้ถูกต้อง",
+    required_password: "กรุณากรอกรหัสผ่านอย่างน้อย 8 ตัวอักษร",
+    login_failed: "อีเมลหรือรหัสผ่านไม่ถูกต้อง",
+    register_failed: "ไม่สามารถสมัครสมาชิกได้ในขณะนี้",
+    logout_done: "ออกจากระบบแล้ว",
+  },
+  en: {
+    login_tab: "Sign In",
+    register_tab: "Create Account",
+    copy: "Sign in before starting the chat so your IQON conversation stays private and tied to your account.",
+    name_label: "Display name",
+    email_label: "Email",
+    password_label: "Password",
+    name_placeholder: "For example Mint",
+    password_placeholder: "At least 8 characters",
+    login_submit: "Sign in to open chat",
+    register_submit: "Create account and start chatting",
+    logout: "Sign out",
+    welcome: "Welcome",
+    login_hint: "You are signed in and can start chatting right away.",
+    guest_status: "Please sign in or create an account before using chat.",
+    sending: "Checking your account...",
+    required_name: "Please enter your name",
+    required_email: "Please enter a valid email",
+    required_password: "Please enter a password with at least 8 characters",
+    login_failed: "Incorrect email or password",
+    register_failed: "Could not create your account right now",
+    logout_done: "Signed out",
+  },
+};
+
 const translations = {
   th: {
     brand_tagline: "สถาบันกวดวิชาไอคิวออน",
     menu: "เมนู",
+    menu_quick_contact: "ช่องทางติดต่อด่วน",
+    nav_home: "หน้าแรก",
     nav_programs: "หลักสูตร",
     nav_approach: "แนวทางการสอน",
     nav_courses: "ข้อมูลคอร์ส",
     nav_contact: "ติดต่อ",
+    hero_welcome: "ยินดีต้อนรับสู่การเรียนของ IQON",
+    hero_title_home: "เรียนอย่างมีเป้าหมาย เข้าใจง่าย และต่อยอดผลลัพธ์ได้จริง",
+    hero_subtitle_home: "เรียนอย่างมีเป้าหมาย พร้อมทีมสอนที่เข้าใจผู้เรียนจริง ทั้งปรับพื้นฐาน เพิ่มเนื้อหา และเตรียมสอบอย่างเป็นระบบ",
+    hero_cta_contact: "ติดต่อเรา",
+    hero_cta_about: "เกี่ยวกับเรา",
     book_consultation: "นัดหมายปรึกษา",
     ask_via_line: "สอบถามผ่าน Line",
     ask_about_courses: "สอบถามคอร์สเรียน",
@@ -134,10 +204,17 @@ const translations = {
   en: {
     brand_tagline: "IQON Academic Institute",
     menu: "Menu",
+    menu_quick_contact: "Quick Contact",
+    nav_home: "Home",
     nav_programs: "Programs",
     nav_approach: "Approach",
     nav_courses: "Courses",
     nav_contact: "Contact",
+    hero_welcome: "Welcome to IQON Learning",
+    hero_title_home: "Learn with purpose, understand clearly, and build real results",
+    hero_subtitle_home: "Study with a teaching team that truly understands students, from foundations and content boosting to structured exam preparation.",
+    hero_cta_contact: "Contact Us",
+    hero_cta_about: "About Us",
     book_consultation: "Book Consultation",
     ask_via_line: "Ask via Line",
     ask_about_courses: "Ask About Courses",
@@ -183,7 +260,121 @@ const translations = {
   },
 };
 
+const supportAuthDictionary = {
+  th: {
+    login_tab: "เข้าสู่ระบบ",
+    register_tab: "สมัครใหม่",
+    copy: "เข้าสู่ระบบก่อนเริ่มแชตกับทีมงาน IQON เพื่อให้ห้องสนทนาของคุณเป็นส่วนตัวและกลับมาใช้งานต่อได้ในภายหลัง",
+    name_label: "ชื่อที่ใช้ติดต่อ",
+    email_label: "อีเมล",
+    password_label: "รหัสผ่าน",
+    name_placeholder: "เช่น น้องมินต์",
+    email_placeholder: "name@email.com",
+    password_placeholder: "อย่างน้อย 8 ตัวอักษร",
+    login_submit: "เข้าสู่ระบบเพื่อเริ่มแชต",
+    register_submit: "สมัครสมาชิกและเริ่มแชต",
+    logout: "ออกจากระบบ",
+    welcome: "ยินดีต้อนรับ",
+    login_hint: "เข้าสู่ระบบแล้ว สามารถพิมพ์คุยกับทีมงานได้ทันที",
+    guest_status: "กรุณาเข้าสู่ระบบหรือสมัครสมาชิกก่อนใช้งานแชต",
+    sending: "กำลังตรวจสอบข้อมูล...",
+    required_name: "กรุณากรอกชื่อให้ครบถ้วน",
+    required_email: "กรุณากรอกอีเมลให้ถูกต้อง",
+    required_password: "กรุณากรอกรหัสผ่านอย่างน้อย 8 ตัวอักษร",
+    login_failed: "อีเมลหรือรหัสผ่านไม่ถูกต้อง",
+    register_failed: "ยังไม่สามารถสมัครสมาชิกได้ในขณะนี้",
+    logout_done: "ออกจากระบบแล้ว",
+  },
+  en: {
+    login_tab: "Sign In",
+    register_tab: "Create Account",
+    copy: "Sign in before starting the chat so your IQON conversation stays private and tied to your account.",
+    name_label: "Display name",
+    email_label: "Email",
+    password_label: "Password",
+    name_placeholder: "For example Mint",
+    email_placeholder: "name@email.com",
+    password_placeholder: "At least 8 characters",
+    login_submit: "Sign in to open chat",
+    register_submit: "Create account and start chatting",
+    logout: "Sign out",
+    welcome: "Welcome",
+    login_hint: "You are signed in and can start chatting right away.",
+    guest_status: "Please sign in or create an account before using chat.",
+    sending: "Checking your account...",
+    required_name: "Please enter your name",
+    required_email: "Please enter a valid email",
+    required_password: "Please enter a password with at least 8 characters",
+    login_failed: "Incorrect email or password",
+    register_failed: "Could not create your account right now",
+    logout_done: "Signed out",
+  },
+};
+
 const getText = (key) => translations[currentLanguage]?.[key] || translations.th[key] || "";
+const getSupportAuthText = (key) =>
+  supportAuthDictionary[currentLanguage]?.[key] || supportAuthDictionary.en[key] || "";
+
+const initializeScrollReveal = () => {
+  if (document.body.dataset.revealReady === "true") {
+    return;
+  }
+
+  const revealTargets = Array.from(
+    document.querySelectorAll(
+      [
+        "main section h1",
+        "main section h2",
+        "main section h3",
+        "main section p",
+        "main section .button",
+        "main section .button-secondary",
+        "main section .eyebrow",
+      ].join(", "),
+    ),
+  ).filter((element) => !element.closest(".support-widget, .line-package-modal, .admin-shell"));
+
+  if (!revealTargets.length) {
+    document.body.dataset.revealReady = "true";
+    return;
+  }
+
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  revealTargets.forEach((element, index) => {
+    element.classList.add("reveal-on-scroll");
+    element.classList.add(index % 4 === 0 ? "reveal-up" : "reveal-left");
+    element.style.setProperty("--reveal-delay", `${Math.min(index % 6, 5) * 70}ms`);
+    if (prefersReducedMotion) {
+      element.classList.add("is-visible");
+    }
+  });
+
+  if (prefersReducedMotion || typeof IntersectionObserver === "undefined") {
+    revealTargets.forEach((element) => element.classList.add("is-visible"));
+    document.body.dataset.revealReady = "true";
+    return;
+  }
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) {
+          return;
+        }
+        entry.target.classList.add("is-visible");
+        observer.unobserve(entry.target);
+      });
+    },
+    {
+      threshold: 0.12,
+      rootMargin: "0px 0px -8% 0px",
+    },
+  );
+
+  revealTargets.forEach((element) => observer.observe(element));
+  document.body.dataset.revealReady = "true";
+};
 
 const setText = (selector, value) => {
   if (value === undefined) {
@@ -765,6 +956,11 @@ const applyLanguage = (language) => {
     }
   });
 
+  if (menuToggle) {
+    const isOpen = menuToggle.getAttribute("aria-expanded") === "true";
+    menuToggle.textContent = isOpen ? (currentLanguage === "en" ? "Close" : "ปิด") : getText("menu");
+  }
+
   languageButtons.forEach((button) => {
     const isActive = button.dataset.langOption === currentLanguage;
     button.classList.toggle("is-active", isActive);
@@ -778,8 +974,9 @@ const applyLanguage = (language) => {
   }
 
   syncLocalizedContent();
+  syncSupportAuthLanguage();
 
-  if (supportConversationId) {
+  if (supportConversationId && supportCurrentUser) {
     loadSupportMessages({
       silent: true,
     });
@@ -827,10 +1024,11 @@ const createConversationId = () => {
 };
 
 const ensureSupportConversationId = () => {
-  let conversationId = safeStorage.get(SUPPORT_CONVERSATION_KEY);
+  const storageKey = getConversationStorageKey();
+  let conversationId = safeStorage.get(storageKey);
   if (!conversationId) {
     conversationId = createConversationId();
-    safeStorage.set(SUPPORT_CONVERSATION_KEY, conversationId);
+    safeStorage.set(storageKey, conversationId);
   }
   return conversationId;
 };
@@ -844,6 +1042,338 @@ const setSupportStatus = (message = "", variant = "") => {
 
   supportStatus.textContent = message;
   supportStatus.className = variant ? `support-status ${variant}` : "support-status";
+};
+
+const setSupportAuthStatus = (message = "", variant = "") => {
+  if (!supportAuthStatus) {
+    return;
+  }
+
+  supportAuthStatus.textContent = message;
+  supportAuthStatus.className = variant ? `support-auth-status ${variant}` : "support-auth-status";
+};
+
+const getConversationStorageKey = () =>
+  supportCurrentUser?.id
+    ? `${SUPPORT_CONVERSATION_KEY}:${supportCurrentUser.id}`
+    : `${SUPPORT_CONVERSATION_KEY}:guest`;
+
+const setSupportAuthMode = (mode = "login") => {
+  supportAuthMode = mode === "register" ? "register" : "login";
+
+  supportAuthTabs.forEach((button) => {
+    const isActive = button.dataset.authMode === supportAuthMode;
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-pressed", String(isActive));
+  });
+
+  if (supportAuthNameField) {
+    supportAuthNameField.hidden = supportAuthMode !== "register";
+  }
+
+  if (!supportAuthView) {
+    return;
+  }
+
+  const submitLabel = supportAuthView.querySelector("[data-support-auth-submit-label]");
+  if (submitLabel) {
+    submitLabel.textContent =
+      supportAuthMode === "register"
+        ? getSupportAuthText("register_submit")
+        : getSupportAuthText("login_submit");
+  }
+
+  if (supportAuthSubmit) {
+    supportAuthSubmit.disabled = false;
+  }
+
+  setSupportAuthStatus(getSupportAuthText("guest_status"), "");
+};
+
+const syncSupportAuthLanguage = () => {
+  if (!supportAuthView) {
+    return;
+  }
+
+  supportAuthTabs.forEach((button) => {
+    const key = button.dataset.authMode === "register" ? "register_tab" : "login_tab";
+    button.textContent = getSupportAuthText(key);
+  });
+
+  supportAuthView.querySelectorAll("[data-support-auth-text]").forEach((element) => {
+    const key = element.getAttribute("data-support-auth-text");
+    if (key) {
+      element.textContent = getSupportAuthText(key);
+    }
+  });
+
+  supportAuthView.querySelectorAll("[data-support-auth-placeholder]").forEach((element) => {
+    const key = element.getAttribute("data-support-auth-placeholder");
+    if (key) {
+      element.setAttribute("placeholder", getSupportAuthText(key));
+    }
+  });
+
+  if (supportUserLabel) {
+    supportUserLabel.textContent = supportCurrentUser
+      ? `${getSupportAuthText("welcome")} ${supportCurrentUser.full_name || ""}`.trim()
+      : "";
+  }
+
+  if (supportLogoutButton) {
+    supportLogoutButton.textContent = getSupportAuthText("logout");
+  }
+
+  setSupportAuthMode(supportAuthMode);
+};
+
+const setSupportAuthenticatedState = (user) => {
+  supportCurrentUser = user || null;
+  supportConversationId = supportCurrentUser ? ensureSupportConversationId() : "";
+
+  if (supportAuthView) {
+    supportAuthView.hidden = Boolean(supportCurrentUser);
+  }
+
+  if (supportChatView) {
+    supportChatView.hidden = !supportCurrentUser;
+  }
+
+  if (supportUserLabel) {
+    supportUserLabel.hidden = !supportCurrentUser;
+    supportUserLabel.textContent = supportCurrentUser
+      ? `${getSupportAuthText("welcome")} ${supportCurrentUser.full_name || ""}`.trim()
+      : "";
+  }
+
+  if (supportLogoutButton) {
+    supportLogoutButton.hidden = !supportCurrentUser;
+  }
+
+  if (!supportCurrentUser) {
+    setSupportAuthStatus(getSupportAuthText("guest_status"), "");
+    setSupportStatus("", "");
+    return;
+  }
+
+  setSupportAuthStatus("", "");
+  setSupportStatus(getText("support_status_connected"), "is-success");
+};
+
+const buildSupportAuthView = () => {
+  if (!supportPanel || supportAuthView || !supportForm || !supportStatus) {
+    return;
+  }
+
+  const header = supportPanel.querySelector(".support-panel-header");
+  const body = supportPanel.querySelector(".support-body");
+  const quickActions = supportPanel.querySelector(".support-quick-actions");
+
+  quickActions?.remove();
+
+  supportChatView = document.createElement("div");
+  supportChatView.className = "support-chat-view";
+
+  if (body) {
+    supportChatView.appendChild(body);
+  }
+  supportChatView.appendChild(supportForm);
+  supportChatView.appendChild(supportStatus);
+
+  supportAuthView = document.createElement("section");
+  supportAuthView.className = "support-auth-view";
+  supportAuthView.innerHTML = `
+    <div class="support-auth-card">
+      <div class="support-auth-tabs" role="tablist" aria-label="Chat authentication">
+        <button type="button" class="support-auth-tab is-active" data-auth-mode="login"></button>
+        <button type="button" class="support-auth-tab" data-auth-mode="register"></button>
+      </div>
+      <p class="support-auth-copy" data-support-auth-text="copy"></p>
+      <form class="support-auth-form" novalidate>
+        <label class="support-auth-field" data-support-auth-name-field hidden>
+          <span data-support-auth-text="name_label"></span>
+          <input type="text" name="full_name" autocomplete="name" data-support-auth-placeholder="name_placeholder">
+        </label>
+        <label class="support-auth-field">
+          <span data-support-auth-text="email_label"></span>
+          <input type="email" name="email" autocomplete="email" data-support-auth-placeholder="email_placeholder">
+        </label>
+        <label class="support-auth-field">
+          <span data-support-auth-text="password_label"></span>
+          <input type="password" name="password" autocomplete="current-password" data-support-auth-placeholder="password_placeholder">
+        </label>
+        <button type="submit" class="support-auth-submit">
+          <span data-support-auth-submit-label></span>
+        </button>
+      </form>
+      <p class="support-auth-status"></p>
+    </div>
+  `;
+
+  supportPanel.appendChild(supportAuthView);
+  supportPanel.appendChild(supportChatView);
+
+  supportAuthForm = supportAuthView.querySelector(".support-auth-form");
+  supportAuthStatus = supportAuthView.querySelector(".support-auth-status");
+  supportAuthNameField = supportAuthView.querySelector("[data-support-auth-name-field]");
+  supportAuthName = supportAuthForm?.querySelector('input[name="full_name"]') || null;
+  supportAuthEmail = supportAuthForm?.querySelector('input[name="email"]') || null;
+  supportAuthPassword = supportAuthForm?.querySelector('input[name="password"]') || null;
+  supportAuthSubmit = supportAuthForm?.querySelector(".support-auth-submit") || null;
+  supportAuthTabs = Array.from(supportAuthView.querySelectorAll("[data-auth-mode]"));
+
+  if (header) {
+    const closeButton = header.querySelector(".support-close");
+    const headerActions = document.createElement("div");
+    headerActions.className = "support-header-actions";
+
+    supportUserLabel = document.createElement("span");
+    supportUserLabel.className = "support-user-label";
+    supportUserLabel.hidden = true;
+
+    supportLogoutButton = document.createElement("button");
+    supportLogoutButton.type = "button";
+    supportLogoutButton.className = "support-logout";
+    supportLogoutButton.hidden = true;
+
+    headerActions.appendChild(supportUserLabel);
+    headerActions.appendChild(supportLogoutButton);
+
+    if (closeButton) {
+      header.insertBefore(headerActions, closeButton);
+    } else {
+      header.appendChild(headerActions);
+    }
+  }
+
+  supportAuthTabs.forEach((button) => {
+    button.addEventListener("click", () => {
+      setSupportAuthMode(button.dataset.authMode || "login");
+    });
+  });
+
+  supportLogoutButton?.addEventListener("click", async () => {
+    try {
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    } catch (error) {
+      // Ignore logout network errors and reset UI anyway.
+    }
+
+    setSupportAuthenticatedState(null);
+    setSupportAuthMode("login");
+    setSupportAuthStatus(getSupportAuthText("logout_done"), "is-success");
+    supportAuthPassword && (supportAuthPassword.value = "");
+  });
+
+  supportAuthForm?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const fullName = String(supportAuthName?.value || "").trim();
+    const email = String(supportAuthEmail?.value || "").trim();
+    const password = String(supportAuthPassword?.value || "");
+
+    if (supportAuthMode === "register" && fullName.length < 2) {
+      setSupportAuthStatus(getSupportAuthText("required_name"), "is-error");
+      supportAuthName?.focus();
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setSupportAuthStatus(getSupportAuthText("required_email"), "is-error");
+      supportAuthEmail?.focus();
+      return;
+    }
+
+    if (password.length < 8) {
+      setSupportAuthStatus(getSupportAuthText("required_password"), "is-error");
+      supportAuthPassword?.focus();
+      return;
+    }
+
+    setSupportAuthStatus(getSupportAuthText("sending"), "");
+    if (supportAuthSubmit) {
+      supportAuthSubmit.disabled = true;
+    }
+
+    try {
+      const endpoint =
+        supportAuthMode === "register" ? "/api/auth/register" : "/api/auth/login";
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          full_name: fullName,
+          email,
+          password,
+        }),
+      });
+
+      const payload = await response.json();
+      if (!response.ok || !payload.ok) {
+        throw new Error(
+          payload.error ||
+            (supportAuthMode === "register"
+              ? getSupportAuthText("register_failed")
+              : getSupportAuthText("login_failed")),
+        );
+      }
+
+      supportAuthForm.reset();
+      setSupportAuthenticatedState(payload.user || null);
+      setSupportAuthStatus(getSupportAuthText("login_hint"), "is-success");
+      await loadSupportMessages({
+        silent: true,
+      });
+    } catch (error) {
+      setSupportAuthenticatedState(null);
+      setSupportAuthStatus(
+        error instanceof Error && error.message
+          ? error.message
+          : supportAuthMode === "register"
+            ? getSupportAuthText("register_failed")
+            : getSupportAuthText("login_failed"),
+        "is-error",
+      );
+    } finally {
+      if (supportAuthSubmit) {
+        supportAuthSubmit.disabled = false;
+      }
+    }
+  });
+
+  setSupportAuthMode("login");
+  syncSupportAuthLanguage();
+  setSupportAuthenticatedState(null);
+};
+
+const syncSupportAuthentication = async () => {
+  if (!supportPanel) {
+    return;
+  }
+
+  try {
+    const response = await fetch("/api/auth/me", {
+      headers: {
+        Accept: "application/json",
+      },
+    });
+    const payload = await response.json();
+    if (response.ok && payload.ok && payload.authenticated) {
+      setSupportAuthenticatedState(payload.user || null);
+      return;
+    }
+  } catch (error) {
+    // Fallback to logged-out state when auth check fails.
+  }
+
+  setSupportAuthenticatedState(null);
 };
 
 const formatChatTime = (value) => {
@@ -925,6 +1455,12 @@ const fetchSupportMessages = async () => {
   );
   const payload = await response.json();
 
+  if (response.status === 401 || payload.auth_required) {
+    const authError = new Error(payload.error || "Authentication required");
+    authError.name = "SupportAuthRequired";
+    throw authError;
+  }
+
   if (!response.ok || !payload.ok) {
     throw new Error(payload.error || "Chat load failed");
   }
@@ -933,7 +1469,7 @@ const fetchSupportMessages = async () => {
 };
 
 const loadSupportMessages = async ({ silent = false } = {}) => {
-  if (!supportThread || !supportConversationId) {
+  if (!supportThread || !supportConversationId || !supportCurrentUser) {
     return;
   }
 
@@ -947,6 +1483,11 @@ const loadSupportMessages = async ({ silent = false } = {}) => {
       setSupportStatus(getText("support_status_start"), "");
     }
   } catch (error) {
+    if (error instanceof Error && error.name === "SupportAuthRequired") {
+      setSupportAuthenticatedState(null);
+      setSupportAuthMode("login");
+      return;
+    }
     if (!silent) {
       setSupportStatus(getText("support_status_load_error"), "is-error");
     }
@@ -967,6 +1508,12 @@ const sendSupportMessage = async (message) => {
   });
 
   const payload = await response.json();
+  if (response.status === 401 || payload.auth_required) {
+    const authError = new Error(payload.error || "Authentication required");
+    authError.name = "SupportAuthRequired";
+    throw authError;
+  }
+
   if (!response.ok || !payload.ok) {
     throw new Error(payload.error || "Send failed");
   }
@@ -985,6 +1532,7 @@ languageButtons.forEach((button) => {
 });
 
 applyLanguage(getInitialLanguage());
+initializeScrollReveal();
 
 consentInlineToggles.forEach((toggle) => {
   toggle.addEventListener("click", () => {
@@ -1004,16 +1552,34 @@ consentInlineToggles.forEach((toggle) => {
 });
 
 if (menuToggle && siteMenu) {
-  menuToggle.addEventListener("click", () => {
-    const isOpen = siteMenu.classList.toggle("is-open");
+  const setMenuState = (isOpen) => {
+    siteMenu.classList.toggle("is-open", isOpen);
+    document.body.classList.toggle("menu-open", isOpen);
     menuToggle.setAttribute("aria-expanded", String(isOpen));
+    menuToggle.textContent = isOpen ? (currentLanguage === "en" ? "Close" : "ปิด") : getText("menu");
+  };
+
+  menuToggle.addEventListener("click", () => {
+    const isOpen = !siteMenu.classList.contains("is-open");
+    setMenuState(isOpen);
   });
 
   siteMenu.querySelectorAll("a").forEach((link) => {
     link.addEventListener("click", () => {
-      siteMenu.classList.remove("is-open");
-      menuToggle.setAttribute("aria-expanded", "false");
+      setMenuState(false);
     });
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      setMenuState(false);
+    }
+  });
+
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 860) {
+      setMenuState(false);
+    }
   });
 }
 
@@ -1024,15 +1590,30 @@ if (storyOverlay && storyOverlayClose) {
 }
 
 if (supportWidget && supportPanel && supportOpen) {
-  supportConversationId = ensureSupportConversationId();
+  buildSupportAuthView();
+  supportWidget.dataset.panelOpen = "false";
 
   const setSupportState = (isOpen) => {
     supportPanel.classList.toggle("hidden", !isOpen);
+    supportWidget.dataset.panelOpen = isOpen ? "true" : "false";
     supportOpen.setAttribute("aria-expanded", String(isOpen));
 
     if (isOpen) {
-      loadSupportMessages({
-        silent: true,
+      syncSupportAuthentication().then(() => {
+        if (supportCurrentUser) {
+          loadSupportMessages({
+            silent: true,
+          });
+          supportInput?.focus();
+          return;
+        }
+
+        if (supportAuthMode === "register") {
+          supportAuthName?.focus();
+          return;
+        }
+
+        supportAuthEmail?.focus();
       });
     }
   };
@@ -1068,20 +1649,16 @@ if (supportWidget && supportPanel && supportOpen) {
     });
   });
 
-  supportQuickButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      if (!supportInput) {
-        return;
-      }
-
-      supportInput.value = String(button.dataset.quickMessage || "").trim();
-      supportInput.focus();
-    });
-  });
-
   supportForm?.addEventListener("submit", async (event) => {
     event.preventDefault();
     const message = String(supportInput?.value || "").trim();
+
+    if (!supportCurrentUser) {
+      setSupportAuthenticatedState(null);
+      setSupportAuthMode("login");
+      supportAuthEmail?.focus();
+      return;
+    }
 
     if (!message) {
       setSupportStatus(getText("support_error_empty"), "is-error");
@@ -1110,11 +1687,19 @@ if (supportWidget && supportPanel && supportOpen) {
       });
       setSupportStatus(getText("support_status_sent"), "is-success");
     } catch (error) {
-      setSupportStatus(getText("support_status_send_error"), "is-error");
+      if (error instanceof Error && error.name === "SupportAuthRequired") {
+        setSupportAuthenticatedState(null);
+        setSupportAuthMode("login");
+        supportAuthEmail?.focus();
+      } else {
+        setSupportStatus(getText("support_status_send_error"), "is-error");
+      }
     } finally {
       if (supportInput) {
         supportInput.disabled = false;
-        supportInput.focus();
+        if (supportCurrentUser) {
+          supportInput.focus();
+        }
       }
 
       if (submitButton) {
@@ -1130,18 +1715,20 @@ if (supportWidget && supportPanel && supportOpen) {
     }
   });
 
-  loadSupportMessages({
+  syncSupportAuthentication().then(() => loadSupportMessages({
     silent: true,
-  });
+  }));
 
   if (supportPollHandle) {
     window.clearInterval(supportPollHandle);
   }
 
   supportPollHandle = window.setInterval(() => {
-    loadSupportMessages({
-      silent: true,
-    });
+    if (supportCurrentUser) {
+      loadSupportMessages({
+        silent: true,
+      });
+    }
   }, SUPPORT_POLL_INTERVAL);
 }
 
