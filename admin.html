@@ -70,80 +70,104 @@
       </section>
 
       <section class="admin-dashboard hidden" id="admin-dashboard">
-        <div class="stats-grid">
-          <article class="admin-card">
-            <h3>จำนวนข้อมูลทั้งหมด</h3>
-            <div class="metric" id="metric-total">0</div>
-            <p class="metric-label">รายการผู้สนใจเรียนในระบบ</p>
-          </article>
-          <article class="admin-card">
-            <h3>รายการวันนี้</h3>
-            <div class="metric" id="metric-today">0</div>
-            <p class="metric-label">รายการที่ส่งเข้ามาในวันนี้</p>
-          </article>
-          <article class="admin-card">
-            <h3>อัปเดตล่าสุด</h3>
-            <div class="metric" id="metric-latest">-</div>
-            <p class="metric-label">เวลาของรายการล่าสุด</p>
-          </article>
-          <article class="admin-card">
-            <h3>ห้องแชตทั้งหมด</h3>
-            <div class="metric" id="metric-chats">0</div>
-            <p class="metric-label">จำนวนห้องแชตจากหน้าเว็บ</p>
-          </article>
+        <div class="admin-tabs" role="tablist" aria-label="Admin sections">
+          <button class="admin-tab is-active" type="button" data-admin-tab="overview" aria-selected="true">ภาพรวม</button>
+          <button class="admin-tab" type="button" data-admin-tab="messages" aria-selected="false">Messages</button>
         </div>
 
-        <section class="admin-chat-layout">
-          <section class="table-card admin-chat-sidebar">
-            <h3>แชตจากหน้าเว็บ</h3>
-            <p class="helper-text">ข้อความจะรีเฟรชอัตโนมัติทุก 3 วินาที</p>
-            <div class="admin-chat-conversations" id="chat-conversation-list">
-              <div class="empty-state">ยังไม่มีห้องแชต</div>
-            </div>
-          </section>
+        <section class="admin-tab-panel" id="admin-panel-overview" data-admin-panel="overview">
+          <div class="stats-grid">
+            <article class="admin-card">
+              <h3>จำนวนข้อมูลทั้งหมด</h3>
+              <div class="metric" id="metric-total">0</div>
+              <p class="metric-label">รายการผู้สนใจเรียนในระบบ</p>
+            </article>
+            <article class="admin-card">
+              <h3>รายการวันนี้</h3>
+              <div class="metric" id="metric-today">0</div>
+              <p class="metric-label">รายการที่ส่งเข้ามาในวันนี้</p>
+            </article>
+            <article class="admin-card">
+              <h3>อัปเดตล่าสุด</h3>
+              <div class="metric" id="metric-latest">-</div>
+              <p class="metric-label">เวลาของรายการล่าสุด</p>
+            </article>
+            <article class="admin-card">
+              <h3>ห้องแชตทั้งหมด</h3>
+              <div class="metric" id="metric-chats">0</div>
+              <p class="metric-label">จำนวนห้องแชตจากหน้าเว็บ</p>
+            </article>
+          </div>
 
-          <section class="table-card admin-chat-main">
-            <div class="admin-chat-main-head">
-              <div>
-                <h3 id="chat-room-title">เลือกห้องแชต</h3>
-                <p class="helper-text" id="chat-room-meta">เมื่อมีข้อความจากหน้าเว็บ รายการจะขึ้นที่นี่</p>
-              </div>
+          <section class="table-card">
+            <h3>รายการผู้สนใจเรียนล่าสุด</h3>
+            <p class="helper-text">ระบบจะดึงข้อมูลใหม่อัตโนมัติทุก 3 วินาที</p>
+            <div class="table-scroll">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>วันเวลา</th>
+                    <th>ชื่อ</th>
+                    <th>ระดับชั้น</th>
+                    <th>วิชา</th>
+                    <th>โทรศัพท์</th>
+                    <th>เวลาที่สะดวก</th>
+                    <th>ยินยอม</th>
+                    <th>รายละเอียด</th>
+                  </tr>
+                </thead>
+                <tbody id="inquiry-table-body">
+                  <tr>
+                    <td colspan="8" class="empty-state">ยังไม่มีข้อมูล</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
-            <div class="admin-chat-thread" id="admin-chat-thread">
-              <div class="empty-state">ยังไม่ได้เลือกห้องแชต</div>
-            </div>
-            <form class="admin-chat-reply" id="admin-chat-form">
-              <input type="text" id="admin-chat-input" placeholder="พิมพ์ข้อความตอบกลับถึงผู้ใช้" maxlength="800" disabled>
-              <button class="button button-primary" type="submit" id="admin-chat-send" disabled>ส่งตอบกลับ</button>
-            </form>
-            <p class="form-status" id="admin-chat-status" aria-live="polite"></p>
           </section>
         </section>
 
-        <section class="table-card">
-          <h3>รายการผู้สนใจเรียนล่าสุด</h3>
-          <p class="helper-text">ระบบจะดึงข้อมูลใหม่อัตโนมัติทุก 3 วินาที</p>
-          <div class="table-scroll">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>วันเวลา</th>
-                  <th>ชื่อ</th>
-                  <th>ระดับชั้น</th>
-                  <th>วิชา</th>
-                  <th>โทรศัพท์</th>
-                  <th>เวลาที่สะดวก</th>
-                  <th>ยินยอม</th>
-                  <th>รายละเอียด</th>
-                </tr>
-              </thead>
-              <tbody id="inquiry-table-body">
-                <tr>
-                  <td colspan="8" class="empty-state">ยังไม่มีข้อมูล</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+        <section class="admin-tab-panel hidden" id="admin-panel-messages" data-admin-panel="messages">
+          <section class="admin-chat-layout admin-chat-layout-instagram">
+            <aside class="table-card admin-chat-sidebar admin-chat-sidebar-instagram">
+              <div class="admin-chat-sidebar-head">
+                <div>
+                  <p class="eyebrow">IQON Messages</p>
+                  <h3>กล่องข้อความ</h3>
+                </div>
+                <button class="admin-compose-button" type="button" aria-label="รีเฟรชห้องแชต" id="chat-refresh-button">↻</button>
+              </div>
+              <div class="admin-chat-search-shell">
+                <input class="admin-chat-search" type="search" id="chat-search-input" placeholder="ค้นหาชื่อ อีเมล หรือข้อความ">
+              </div>
+              <div class="admin-chat-sidebar-meta">
+                <span>ห้องแชตทั้งหมด <strong id="chat-total-badge">0</strong></span>
+                <small>รีเฟรชอัตโนมัติทุก 3 วินาที</small>
+              </div>
+              <div class="admin-chat-conversations admin-chat-conversations-instagram" id="chat-conversation-list">
+                <div class="empty-state">ยังไม่มีห้องแชต</div>
+              </div>
+            </aside>
+
+            <section class="table-card admin-chat-main admin-chat-main-instagram">
+              <div class="admin-chat-main-head admin-chat-main-head-instagram">
+                <div class="admin-chat-main-user">
+                  <div class="admin-chat-main-avatar" id="chat-room-avatar" aria-hidden="true">IQ</div>
+                  <div>
+                    <h3 id="chat-room-title">เลือกห้องแชต</h3>
+                    <p class="helper-text" id="chat-room-meta">เมื่อมีข้อความจากหน้าเว็บ รายการจะขึ้นที่นี่</p>
+                  </div>
+                </div>
+              </div>
+              <div class="admin-chat-thread admin-chat-thread-instagram" id="admin-chat-thread">
+                <div class="empty-state">ยังไม่ได้เลือกห้องแชต</div>
+              </div>
+              <form class="admin-chat-reply admin-chat-reply-instagram" id="admin-chat-form">
+                <input type="text" id="admin-chat-input" placeholder="พิมพ์ข้อความตอบกลับถึงผู้ใช้" maxlength="800" disabled>
+                <button class="button button-primary" type="submit" id="admin-chat-send" disabled>ส่งตอบกลับ</button>
+              </form>
+              <p class="form-status" id="admin-chat-status" aria-live="polite"></p>
+            </section>
+          </section>
         </section>
       </section>
     </div>
