@@ -5,28 +5,39 @@ const loginStatus = document.querySelector("#admin-login-status");
 const usernameInput = document.querySelector("#admin-username");
 const passwordInput = document.querySelector("#admin-password");
 const passwordToggle = document.querySelector("#password-toggle");
+
 const totalMetric = document.querySelector("#metric-total");
 const todayMetric = document.querySelector("#metric-today");
 const latestMetric = document.querySelector("#metric-latest");
 const chatsMetric = document.querySelector("#metric-chats");
 const tableBody = document.querySelector("#inquiry-table-body");
+
 const conversationList = document.querySelector("#chat-conversation-list");
 const chatRoomTitle = document.querySelector("#chat-room-title");
 const chatRoomMeta = document.querySelector("#chat-room-meta");
+const chatRoomAvatar = document.querySelector("#chat-room-avatar");
 const chatThread = document.querySelector("#admin-chat-thread");
 const chatForm = document.querySelector("#admin-chat-form");
 const chatInput = document.querySelector("#admin-chat-input");
 const chatSend = document.querySelector("#admin-chat-send");
 const chatStatus = document.querySelector("#admin-chat-status");
+const chatSearchInput = document.querySelector("#chat-search-input");
+const chatRefreshButton = document.querySelector("#chat-refresh-button");
+const chatTotalBadge = document.querySelector("#chat-total-badge");
+
+const adminTabs = Array.from(document.querySelectorAll("[data-admin-tab]"));
+const adminPanels = Array.from(document.querySelectorAll("[data-admin-panel]"));
 
 const AUTH_STORAGE_KEY = "adminAuthToken";
 const CHAT_STORAGE_KEY = "adminSelectedConversationId";
+const TAB_STORAGE_KEY = "adminSelectedTab";
 const REFRESH_INTERVAL = 2500;
 
-let authToken = sessionStorage.getItem(AUTH_STORAGE_KEY);
+let authToken = sessionStorage.getItem(AUTH_STORAGE_KEY) || "";
 let refreshHandle = null;
 let selectedConversationId = sessionStorage.getItem(CHAT_STORAGE_KEY) || "";
-let latestConversationIds = [];
+let activeAdminTab = sessionStorage.getItem(TAB_STORAGE_KEY) || "overview";
+let allConversations = [];
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -37,7 +48,7 @@ function escapeHtml(value) {
     .replace(/'/g, "&#39;");
 }
 
-function truncateText(value, maxLength = 96) {
+function truncateText(value, maxLength = 84) {
   const text = String(value ?? "").trim();
   if (text.length <= maxLength) {
     return text;
@@ -56,7 +67,7 @@ function formatDateTime(value) {
       timeStyle: "short",
     });
   } catch (error) {
-    return value;
+    return String(value);
   }
 }
 
@@ -71,7 +82,7 @@ function formatTime(value) {
       minute: "2-digit",
     });
   } catch (error) {
-    return value;
+    return String(value);
   }
 }
 
@@ -124,6 +135,74 @@ function setReplyState(enabled) {
   if (chatSend) {
     chatSend.disabled = !enabled;
   }
+}
+
+function getConversationDisplayTitle(conversation) {
+  return conversation?.user_name || formatPageLabel(conversation?.source_page);
+}
+
+function getConversationAvatarLabel(conversation) {
+  const source = String(conversation?.user_name || conversation?.user_email || "IQ")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part.charAt(0))
+    .join("")
+    .toUpperCase();
+
+  return source || "IQ";
+}
+
+function updateConversationBadge(total) {
+  if (chatTotalBadge) {
+    chatTotalBadge.textContent = String(total || 0);
+  }
+}
+
+function persistSelectedConversation(id) {
+  selectedConversationId = id || "";
+
+  if (selectedConversationId) {
+    sessionStorage.setItem(CHAT_STORAGE_KEY, selectedConversationId);
+  } else {
+    sessionStorage.removeItem(CHAT_STORAGE_KEY);
+  }
+}
+
+function setAdminTab(tab) {
+  activeAdminTab = tab === "messages" ? "messages" : "overview";
+  sessionStorage.setItem(TAB_STORAGE_KEY, activeAdminTab);
+
+  adminTabs.forEach((button) => {
+    const isActive = button.dataset.adminTab === activeAdminTab;
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-selected", String(isActive));
+  });
+
+  adminPanels.forEach((panel) => {
+    const isActive = panel.dataset.adminPanel === activeAdminTab;
+    panel.classList.toggle("hidden", !isActive);
+  });
+}
+
+function getFilteredConversations() {
+  const keyword = String(chatSearchInput?.value || "").trim().toLowerCase();
+  if (!keyword) {
+    return allConversations;
+  }
+
+  return allConversations.filter((conversation) => {
+    const haystacks = [
+      conversation.user_name,
+      conversation.user_email,
+      conversation.latest_message,
+      formatPageLabel(conversation.source_page),
+      conversation.id,
+    ];
+
+    return haystacks.some((value) => String(value || "").toLowerCase().includes(keyword));
+  });
 }
 
 async function loginRequest(username, password) {
@@ -185,7 +264,7 @@ function handleAuthFailure(error) {
   }
 
   sessionStorage.removeItem(AUTH_STORAGE_KEY);
-  authToken = null;
+  authToken = "";
   setDashboardVisibility(false);
   setReplyState(false);
   setLoginStatus(
@@ -241,17 +320,11 @@ function renderEmptyChatState(message) {
     chatRoomMeta.textContent = "เมื่อมีข้อความจากหน้าเว็บ รายการจะขึ้นที่นี่";
   }
 
-  setReplyState(false);
-}
-
-function persistSelectedConversation(id) {
-  selectedConversationId = id || "";
-
-  if (selectedConversationId) {
-    sessionStorage.setItem(CHAT_STORAGE_KEY, selectedConversationId);
-  } else {
-    sessionStorage.removeItem(CHAT_STORAGE_KEY);
+  if (chatRoomAvatar) {
+    chatRoomAvatar.textContent = "IQ";
   }
+
+  setReplyState(false);
 }
 
 function renderConversations(conversations) {
@@ -259,17 +332,21 @@ function renderConversations(conversations) {
     return;
   }
 
+  updateConversationBadge(conversations.length);
+
   if (!conversations.length) {
-    conversationList.innerHTML = `<div class="empty-state">ยังไม่มีห้องแชต</div>`;
-    renderEmptyChatState("ยังไม่มีห้องแชต");
-    persistSelectedConversation("");
-    latestConversationIds = [];
+    const emptyLabel = allConversations.length ? "ไม่พบห้องแชตตามคำค้นหา" : "ยังไม่มีห้องแชต";
+    conversationList.innerHTML = `<div class="empty-state">${escapeHtml(emptyLabel)}</div>`;
+    renderEmptyChatState(emptyLabel);
+    if (!allConversations.length) {
+      persistSelectedConversation("");
+    }
     return;
   }
 
-  latestConversationIds = conversations.map((conversation) => conversation.id);
+  const visibleConversationIds = conversations.map((conversation) => conversation.id);
 
-  if (!selectedConversationId || !latestConversationIds.includes(selectedConversationId)) {
+  if (!selectedConversationId || !visibleConversationIds.includes(selectedConversationId)) {
     persistSelectedConversation(conversations[0].id);
   }
 
@@ -277,16 +354,19 @@ function renderConversations(conversations) {
     .map((conversation) => {
       const isActive = conversation.id === selectedConversationId;
       const preview = truncateText(conversation.latest_message || "ยังไม่มีข้อความ");
-      const title = conversation.user_name || formatPageLabel(conversation.source_page);
+      const title = getConversationDisplayTitle(conversation);
+      const avatar = getConversationAvatarLabel(conversation);
       const metaParts = [formatDateTime(conversation.updated_at)];
+
       if (conversation.user_email) {
         metaParts.unshift(conversation.user_email);
       }
+
       const senderText =
         conversation.latest_sender === "admin"
           ? "ทีมงานตอบล่าสุด"
           : conversation.latest_sender === "user"
-            ? "ลูกค้าส่งล่าสุด"
+            ? "ผู้ใช้ส่งล่าสุด"
             : "ห้องแชตใหม่";
 
       return `
@@ -295,14 +375,19 @@ function renderConversations(conversations) {
           type="button"
           data-conversation-id="${escapeHtml(conversation.id)}"
         >
-          <div class="admin-chat-conversation-top">
-            <div>
-              <div class="admin-chat-conversation-title">${escapeHtml(title)}</div>
-              <div class="admin-chat-conversation-meta">${escapeHtml(metaParts.join(" • "))}</div>
+          <div class="admin-chat-conversation-media">
+            <div class="admin-chat-conversation-avatar" aria-hidden="true">${escapeHtml(avatar)}</div>
+            <div class="admin-chat-conversation-copy">
+              <div class="admin-chat-conversation-top">
+                <div>
+                  <div class="admin-chat-conversation-title">${escapeHtml(title)}</div>
+                  <div class="admin-chat-conversation-meta">${escapeHtml(metaParts.join(" • "))}</div>
+                </div>
+                <span class="admin-chat-badge">${escapeHtml(String(conversation.message_count || 0))}</span>
+              </div>
+              <div class="admin-chat-conversation-preview">${escapeHtml(senderText)}: ${escapeHtml(preview)}</div>
             </div>
-            <span class="admin-chat-badge">${escapeHtml(String(conversation.message_count || 0))}</span>
           </div>
-          <div class="admin-chat-conversation-preview">${escapeHtml(senderText)}: ${escapeHtml(preview)}</div>
         </button>
       `;
     })
@@ -316,7 +401,7 @@ function renderConversations(conversations) {
       }
 
       persistSelectedConversation(conversationId);
-      renderConversations(conversations);
+      renderConversations(getFilteredConversations());
       setChatStatus("");
       await loadSelectedConversation();
     });
@@ -328,16 +413,22 @@ function renderChatMessages(conversation, messages) {
     return;
   }
 
-  const roomTitle = conversation.user_name || formatPageLabel(conversation.source_page);
+  const roomTitle = getConversationDisplayTitle(conversation);
   const roomMetaParts = [`รหัสห้อง ${conversation.id}`];
+
   if (conversation.user_email) {
     roomMetaParts.push(conversation.user_email);
   }
+
   roomMetaParts.push(`เริ่ม ${formatDateTime(conversation.created_at)}`);
   roomMetaParts.push(`อัปเดตล่าสุด ${formatDateTime(conversation.updated_at)}`);
 
-  chatRoomTitle.textContent = `ห้องแชต: ${roomTitle}`;
+  chatRoomTitle.textContent = roomTitle;
   chatRoomMeta.textContent = roomMetaParts.join(" • ");
+
+  if (chatRoomAvatar) {
+    chatRoomAvatar.textContent = getConversationAvatarLabel(conversation);
+  }
 
   if (!messages.length) {
     chatThread.innerHTML = `<div class="empty-state">ห้องนี้ยังไม่มีข้อความ</div>`;
@@ -413,10 +504,14 @@ async function loadDashboard() {
   }
 
   renderTable(inquiriesPayload.inquiries || []);
-  renderConversations(conversationsPayload.conversations || []);
+
+  allConversations = conversationsPayload.conversations || [];
+  renderConversations(getFilteredConversations());
 
   if (selectedConversationId) {
     await loadSelectedConversation();
+  } else {
+    renderEmptyChatState(allConversations.length ? "เลือกห้องแชตเพื่อดูบทสนทนา" : "ยังไม่มีห้องแชต");
   }
 }
 
@@ -429,6 +524,7 @@ async function startDashboard() {
     await loadDashboard();
     setDashboardVisibility(true);
     setLoginStatus("");
+    setAdminTab(activeAdminTab);
 
     if (refreshHandle) {
       window.clearInterval(refreshHandle);
@@ -462,7 +558,7 @@ if (loginForm) {
       await startDashboard();
     } catch (error) {
       sessionStorage.removeItem(AUTH_STORAGE_KEY);
-      authToken = null;
+      authToken = "";
       setDashboardVisibility(false);
       setLoginStatus(
         error?.status === 401
@@ -523,5 +619,33 @@ if (passwordToggle && passwordInput) {
   });
 }
 
+if (chatSearchInput) {
+  chatSearchInput.addEventListener("input", async () => {
+    renderConversations(getFilteredConversations());
+    if (selectedConversationId) {
+      await loadSelectedConversation();
+    }
+  });
+}
+
+if (chatRefreshButton) {
+  chatRefreshButton.addEventListener("click", async () => {
+    setChatStatus("กำลังรีเฟรชข้อมูล...", "");
+    try {
+      await loadDashboard();
+      setChatStatus("อัปเดตรายการแชตแล้ว", "is-success");
+    } catch (error) {
+      setChatStatus("ยังรีเฟรชข้อมูลไม่ได้ กรุณาลองใหม่อีกครั้ง", "is-error");
+    }
+  });
+}
+
+adminTabs.forEach((button) => {
+  button.addEventListener("click", () => {
+    setAdminTab(button.dataset.adminTab || "overview");
+  });
+});
+
 renderEmptyChatState("ยังไม่มีห้องแชต");
+setAdminTab(activeAdminTab);
 startDashboard();

@@ -34,8 +34,6 @@ const linePackagePrice = document.querySelector("#line-package-price");
 const linePackageOldPrice = document.querySelector("#line-package-old-price");
 const lineAddFriendLink = document.querySelector("#line-add-friend-link");
 const lineMessageLink = document.querySelector("#line-message-link");
-const lineQrImage = document.querySelector("#line-package-qr-image");
-const lineQrDownload = document.querySelector("#line-qr-download");
 const linePackageClosers = document.querySelectorAll("[data-line-package-close]");
 const languageButtons = document.querySelectorAll("[data-lang-option]");
 
@@ -48,8 +46,6 @@ const buildLineMessageUrl = (message) =>
   `https://line.me/R/msg/text/?${encodeURIComponent(message)}`;
 const buildLineMessageAppUrl = (message) =>
   `line://msg/text/${encodeURIComponent(message)}`;
-const buildQrImageUrl = (targetUrl) =>
-  `https://api.qrserver.com/v1/create-qr-code/?size=960x960&margin=24&data=${encodeURIComponent(targetUrl)}`;
 
 const copyTextToClipboard = async (text) => {
   const value = String(text || "").trim();
@@ -836,7 +832,6 @@ const syncLocalizedContent = () => {
     setText("#line-package-summary", content.modalSummary);
     setTexts(".line-package-meta span", content.modalMeta);
     setText(".line-package-note", content.modalNote);
-    setText(".line-package-qr-card p", content.modalQr);
     setText(".site-footer strong", content.footer.title);
     setText(".site-footer .footer-grid div p", content.footer.body);
     setText(".site-footer .footer-grid > p", content.footer.copyright);
@@ -1774,28 +1769,34 @@ if (
   linePackagePrice &&
   linePackageOldPrice &&
   lineAddFriendLink &&
-  lineMessageLink &&
-  lineQrImage
+  lineMessageLink
 ) {
-  const openLineDestination = (appUrl, webUrl) => {
-    if (!isLikelyMobileDevice()) {
-      window.open(webUrl, "_blank", "noopener,noreferrer");
-      return;
+  const openLineDestination = (appUrl, webUrl = "") => {
+    let fallbackTimer = null;
+
+    if (webUrl) {
+      fallbackTimer = window.setTimeout(() => {
+        window.open(webUrl, "_blank", "noopener,noreferrer");
+      }, 900);
     }
 
-    const fallbackTimer = window.setTimeout(() => {
-      window.open(webUrl, "_blank", "noopener,noreferrer");
-    }, 900);
-
     const handleVisibilityChange = () => {
-      if (document.hidden) {
+      if (document.hidden && fallbackTimer) {
         window.clearTimeout(fallbackTimer);
       }
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
-    window.location.href = appUrl;
+
+    if (appUrl) {
+      window.location.href = appUrl;
+      return;
+    }
+
+    if (webUrl) {
+      window.open(webUrl, "_blank", "noopener,noreferrer");
+    }
   };
 
   const openLinePackageModal = (trigger) => {
@@ -1806,8 +1807,6 @@ if (
     const message =
       String(trigger.dataset.message || "").trim() ||
       `สวัสดีค่ะ สนใจ${packageName} ${hours} ${price} รบกวนขอรายละเอียดเพิ่มเติมค่ะ`;
-    const qrUrl = buildQrImageUrl(lineAddFriendUrl);
-
     linePackageTitle.textContent = packageName;
     linePackageSummary.textContent = "เลือกเพิ่มเพื่อนหรือเปิดแชตพร้อมข้อความแพ็กเกจนี้ได้ทันที";
     linePackageHours.textContent = hours;
@@ -1815,14 +1814,11 @@ if (
     linePackageOldPrice.textContent = oldPrice;
     lineAddFriendLink.href = lineAddFriendUrl;
     lineAddFriendLink.dataset.lineAppUrl = lineAddFriendAppUrl;
-    lineAddFriendLink.dataset.lineWebUrl = lineAddFriendUrl;
+    lineAddFriendLink.dataset.lineWebUrl = "";
     lineMessageLink.href = buildLineMessageUrl(message);
     lineMessageLink.dataset.lineAppUrl = buildLineMessageAppUrl(message);
     lineMessageLink.dataset.lineWebUrl = buildLineMessageUrl(message);
     lineMessageLink.dataset.packageMessage = message;
-    lineQrImage.src = qrUrl;
-    lineQrImage.dataset.downloadUrl = qrUrl;
-    lineQrImage.dataset.filename = `${packageName.replace(/\s+/g, "-")}-line-qr.png`;
 
     linePackageModal.classList.remove("hidden");
     linePackageModal.setAttribute("aria-hidden", "false");
@@ -1849,7 +1845,7 @@ if (
     link.addEventListener("click", async (event) => {
       const appUrl = String(link.dataset.lineAppUrl || "").trim();
       const webUrl = String(link.dataset.lineWebUrl || link.href || "").trim();
-      if (!appUrl || !webUrl) {
+      if (!appUrl && !webUrl) {
         return;
       }
       event.preventDefault();
@@ -1865,6 +1861,7 @@ if (
           }
         }
       }
+      closeLinePackageModal();
       openLineDestination(appUrl, webUrl);
     });
   });
@@ -1875,25 +1872,6 @@ if (
     }
   });
 
-  lineQrDownload?.addEventListener("click", async () => {
-    const qrUrl = lineQrImage.dataset.downloadUrl || lineQrImage.src;
-    const filename = lineQrImage.dataset.filename || "iqon-line-qr.png";
-
-    try {
-      const response = await fetch(qrUrl);
-      const blob = await response.blob();
-      const objectUrl = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = objectUrl;
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      URL.revokeObjectURL(objectUrl);
-    } catch (error) {
-      window.open(qrUrl, "_blank", "noopener,noreferrer");
-    }
-  });
 }
 
 if (phoneInput) {

@@ -2318,6 +2318,246 @@ label {
   font: inherit;
 }
 
+.admin-tabs {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  width: fit-content;
+  padding: 0.35rem;
+  border-radius: 999px;
+  background: rgba(15, 24, 36, 0.9);
+  box-shadow: 0 14px 28px rgba(9, 16, 25, 0.18);
+}
+
+.admin-tab {
+  border: 0;
+  border-radius: 999px;
+  padding: 0.7rem 1rem;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.72);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 180ms ease, color 180ms ease, transform 180ms ease;
+}
+
+.admin-tab:hover,
+.admin-tab:focus-visible {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.admin-tab.is-active {
+  color: #132538;
+  background: linear-gradient(135deg, #ffd08a, #ff9f57);
+  box-shadow: 0 12px 24px rgba(255, 138, 77, 0.28);
+}
+
+.admin-tab-panel {
+  display: grid;
+  gap: 1rem;
+}
+
+.admin-chat-layout-instagram {
+  grid-template-columns: minmax(320px, 390px) minmax(0, 1fr);
+  gap: 0;
+  overflow: hidden;
+  border-radius: 30px;
+  border: 1px solid rgba(16, 27, 42, 0.08);
+  background: rgba(13, 18, 24, 0.94);
+  box-shadow: 0 28px 60px rgba(10, 18, 31, 0.18);
+}
+
+.admin-chat-layout-instagram .table-card {
+  margin: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.admin-chat-sidebar-instagram {
+  display: grid;
+  grid-template-rows: auto auto auto minmax(0, 1fr);
+  gap: 1rem;
+  padding: 1.2rem;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(180deg, rgba(10, 15, 22, 0.98), rgba(13, 18, 24, 0.98));
+  color: #fff;
+}
+
+.admin-chat-sidebar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.admin-chat-sidebar-head h3,
+.admin-chat-main-user h3 {
+  margin: 0;
+}
+
+.admin-chat-sidebar-head .eyebrow,
+.admin-chat-sidebar-meta,
+.admin-chat-sidebar-meta small,
+.admin-chat-main-head-instagram .helper-text {
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.admin-compose-button {
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #ff6e63, #ff9f57);
+  color: #fff;
+  font: inherit;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 14px 28px rgba(255, 109, 99, 0.24);
+}
+
+.admin-chat-search-shell {
+  position: relative;
+}
+
+.admin-chat-search {
+  width: 100%;
+  min-height: 50px;
+  padding: 0.88rem 1rem;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font: inherit;
+}
+
+.admin-chat-search::placeholder {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.admin-chat-sidebar-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.92rem;
+}
+
+.admin-chat-conversations-instagram {
+  max-height: 620px;
+  padding-right: 0.25rem;
+}
+
+.admin-chat-conversation {
+  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.admin-chat-conversation.is-active {
+  background: linear-gradient(135deg, rgba(39, 74, 112, 0.98), rgba(27, 53, 82, 0.98));
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 18px 32px rgba(5, 12, 21, 0.28);
+}
+
+.admin-chat-conversation-media {
+  display: grid;
+  grid-template-columns: 54px minmax(0, 1fr);
+  gap: 0.8rem;
+  align-items: start;
+}
+
+.admin-chat-conversation-copy {
+  min-width: 0;
+}
+
+.admin-chat-conversation-avatar,
+.admin-chat-main-avatar {
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(255, 173, 96, 0.95), rgba(42, 128, 188, 0.96));
+  color: #fff;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  box-shadow: 0 14px 26px rgba(17, 43, 70, 0.18);
+}
+
+.admin-chat-conversation-avatar {
+  width: 54px;
+  height: 54px;
+  font-size: 0.95rem;
+}
+
+.admin-chat-conversation-title {
+  color: #fff;
+}
+
+.admin-chat-conversation-meta,
+.admin-chat-conversation-preview {
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.admin-chat-main-instagram {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  gap: 0;
+  min-height: 720px;
+  padding: 0;
+  background:
+    radial-gradient(circle at top left, rgba(255, 175, 88, 0.08), transparent 24%),
+    linear-gradient(180deg, rgba(19, 29, 43, 0.98), rgba(13, 18, 24, 0.98));
+}
+
+.admin-chat-main-head-instagram {
+  padding: 1.2rem 1.3rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.admin-chat-main-user {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.admin-chat-main-avatar {
+  width: 58px;
+  height: 58px;
+  font-size: 1rem;
+  flex: 0 0 58px;
+}
+
+.admin-chat-thread-instagram {
+  min-height: 0;
+  max-height: none;
+  height: 100%;
+  padding: 1.2rem 1.3rem;
+}
+
+.admin-chat-reply-instagram {
+  padding: 1rem 1.3rem 0;
+}
+
+.admin-chat-reply-instagram input {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.admin-chat-reply-instagram input::placeholder {
+  color: rgba(255, 255, 255, 0.42);
+}
+
+.admin-chat-reply-instagram .button-primary {
+  min-width: 148px;
+}
+
+.admin-chat-main-instagram .form-status {
+  margin: 0 1.3rem 1.15rem;
+}
+
 .hidden {
   display: none !important;
 }
@@ -3724,13 +3964,12 @@ body.modal-open {
 
 .line-package-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
-  gap: 1.3rem;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
   align-items: stretch;
 }
 
-.line-package-copy,
-.line-package-qr-card {
+.line-package-copy {
   min-width: 0;
 }
 
@@ -3757,8 +3996,7 @@ body.modal-open {
 }
 
 .line-package-summary,
-.line-package-note,
-.line-package-qr-card p {
+.line-package-note {
   color: var(--muted);
   line-height: 1.75;
 }
@@ -3799,45 +4037,6 @@ body.modal-open {
 .line-package-actions {
   display: grid;
   gap: 0.8rem;
-}
-
-.line-package-qr-card {
-  display: grid;
-  align-content: center;
-  justify-items: center;
-  padding: 1.2rem;
-  border-radius: 24px;
-  background:
-    linear-gradient(180deg, rgba(20, 59, 103, 0.96), rgba(28, 87, 140, 0.96));
-  color: #fff;
-}
-
-.line-package-qr-card img {
-  display: block;
-  width: min(100%, 280px);
-  aspect-ratio: 1;
-  object-fit: contain;
-  border-radius: 18px;
-  background: #fff;
-  padding: 0.7rem;
-  box-shadow: 0 20px 42px rgba(8, 13, 20, 0.26);
-}
-
-.line-package-qr-card p {
-  margin: 1rem 0 0;
-  color: rgba(255, 255, 255, 0.86);
-  text-align: center;
-}
-
-.line-package-qr-actions {
-  display: grid;
-  gap: 0.8rem;
-  width: 100%;
-  margin-top: 1rem;
-}
-
-.line-package-qr-actions .button-secondary {
-  background: rgba(255, 248, 239, 0.96);
 }
 
 @media (max-width: 1280px) {
@@ -3938,10 +4137,6 @@ body.modal-open {
 
   .line-package-grid {
     grid-template-columns: 1fr;
-  }
-
-  .line-package-qr-card {
-    order: -1;
   }
 }
 
@@ -4925,21 +5120,64 @@ body.modal-open {
     font-size: 1.25rem;
   }
 
-  .line-package-qr-card {
-    padding: 0.9rem;
-    border-radius: 18px;
-  }
-
-  .line-package-qr-card img {
-    width: min(100%, 220px);
-    padding: 0.55rem;
-    border-radius: 14px;
-  }
-
-  .line-package-qr-card p,
   .line-package-summary,
   .line-package-note {
     line-height: 1.55;
     font-size: 0.92rem;
+  }
+}
+
+@media (max-width: 1080px) {
+  .admin-chat-layout-instagram {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-chat-sidebar-instagram {
+    border-right: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+}
+
+@media (max-width: 560px) {
+  .admin-tabs {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .admin-tab {
+    flex: 1 1 0;
+    text-align: center;
+  }
+
+  .admin-chat-sidebar-instagram,
+  .admin-chat-main-head-instagram,
+  .admin-chat-thread-instagram,
+  .admin-chat-reply-instagram {
+    padding-left: 0.95rem;
+    padding-right: 0.95rem;
+  }
+
+  .admin-chat-reply-instagram {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-chat-reply-instagram .button-primary {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .admin-chat-main-user {
+    align-items: flex-start;
+  }
+
+  .admin-chat-conversation-media {
+    grid-template-columns: 44px minmax(0, 1fr);
+  }
+
+  .admin-chat-conversation-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    font-size: 0.82rem;
   }
 }
