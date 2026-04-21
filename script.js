@@ -40,11 +40,45 @@ const linePackageClosers = document.querySelectorAll("[data-line-package-close]"
 const languageButtons = document.querySelectorAll("[data-lang-option]");
 
 const LINE_OA_ID = "@iqon";
-const lineAddFriendUrl = `https://line.me/R/ti/p/${encodeURIComponent(LINE_OA_ID)}`;
+const lineAddFriendUrl = "https://lin.ee/fOA2NDf2";
+const lineAddFriendAppUrl = `line://ti/p/~${LINE_OA_ID}`;
+const isLikelyMobileDevice = () =>
+  /Android|iPhone|iPad|iPod|Mobile|Windows Phone/i.test(navigator.userAgent || "");
 const buildLineMessageUrl = (message) =>
-  `https://line.me/R/oaMessage/${encodeURIComponent(LINE_OA_ID)}/?${encodeURIComponent(message)}`;
+  `https://line.me/R/msg/text/?${encodeURIComponent(message)}`;
+const buildLineMessageAppUrl = (message) =>
+  `line://msg/text/${encodeURIComponent(message)}`;
 const buildQrImageUrl = (targetUrl) =>
   `https://api.qrserver.com/v1/create-qr-code/?size=960x960&margin=24&data=${encodeURIComponent(targetUrl)}`;
+
+const copyTextToClipboard = async (text) => {
+  const value = String(text || "").trim();
+  if (!value) {
+    return false;
+  }
+
+  try {
+    await navigator.clipboard.writeText(value);
+    return true;
+  } catch (error) {
+    try {
+      const helper = document.createElement("textarea");
+      helper.value = value;
+      helper.setAttribute("readonly", "");
+      helper.style.position = "fixed";
+      helper.style.opacity = "0";
+      helper.style.pointerEvents = "none";
+      document.body.appendChild(helper);
+      helper.focus();
+      helper.select();
+      const copied = document.execCommand("copy");
+      helper.remove();
+      return copied;
+    } catch (fallbackError) {
+      return false;
+    }
+  }
+};
 
 const SUPPORT_CONVERSATION_KEY = "iqonSupportConversationId";
 const SUPPORT_POLL_INTERVAL = 2000;
@@ -1743,6 +1777,27 @@ if (
   lineMessageLink &&
   lineQrImage
 ) {
+  const openLineDestination = (appUrl, webUrl) => {
+    if (!isLikelyMobileDevice()) {
+      window.open(webUrl, "_blank", "noopener,noreferrer");
+      return;
+    }
+
+    const fallbackTimer = window.setTimeout(() => {
+      window.open(webUrl, "_blank", "noopener,noreferrer");
+    }, 900);
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        window.clearTimeout(fallbackTimer);
+      }
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.location.href = appUrl;
+  };
+
   const openLinePackageModal = (trigger) => {
     const packageName = String(trigger.dataset.package || "แพ็กเกจที่สนใจ").trim();
     const hours = String(trigger.dataset.hours || "-").trim();
@@ -1759,7 +1814,12 @@ if (
     linePackagePrice.textContent = price;
     linePackageOldPrice.textContent = oldPrice;
     lineAddFriendLink.href = lineAddFriendUrl;
+    lineAddFriendLink.dataset.lineAppUrl = lineAddFriendAppUrl;
+    lineAddFriendLink.dataset.lineWebUrl = lineAddFriendUrl;
     lineMessageLink.href = buildLineMessageUrl(message);
+    lineMessageLink.dataset.lineAppUrl = buildLineMessageAppUrl(message);
+    lineMessageLink.dataset.lineWebUrl = buildLineMessageUrl(message);
+    lineMessageLink.dataset.packageMessage = message;
     lineQrImage.src = qrUrl;
     lineQrImage.dataset.downloadUrl = qrUrl;
     lineQrImage.dataset.filename = `${packageName.replace(/\s+/g, "-")}-line-qr.png`;
@@ -1783,6 +1843,30 @@ if (
 
   linePackageClosers.forEach((closer) => {
     closer.addEventListener("click", closeLinePackageModal);
+  });
+
+  [lineAddFriendLink, lineMessageLink].forEach((link) => {
+    link.addEventListener("click", async (event) => {
+      const appUrl = String(link.dataset.lineAppUrl || "").trim();
+      const webUrl = String(link.dataset.lineWebUrl || link.href || "").trim();
+      if (!appUrl || !webUrl) {
+        return;
+      }
+      event.preventDefault();
+      if (link === lineMessageLink) {
+        const packageMessage = String(link.dataset.packageMessage || "").trim();
+        if (packageMessage) {
+          const copied = await copyTextToClipboard(packageMessage);
+          if (copied) {
+            linePackageSummary.textContent =
+              currentLanguage === "en"
+                ? "Package message copied. Open LINE and paste to send instantly."
+                : "คัดลอกข้อความแพ็กเกจแล้ว เปิด LINE แล้ววางส่งได้ทันที";
+          }
+        }
+      }
+      openLineDestination(appUrl, webUrl);
+    });
   });
 
   document.addEventListener("keydown", (event) => {

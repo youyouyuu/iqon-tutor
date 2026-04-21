@@ -2322,6 +2322,179 @@ label {
   display: none !important;
 }
 
+.support-chat-view[hidden],
+.support-auth-view[hidden] {
+  display: none !important;
+}
+
+@media (max-width: 600px) {
+  .support-widget {
+    right: 0.45rem;
+    bottom: max(0.5rem, calc(env(safe-area-inset-bottom) + 0.25rem));
+  }
+
+  .support-panel {
+    width: min(calc(100vw - 0.6rem), 340px);
+    max-height: min(calc(100svh - 4.4rem), 560px);
+    border-radius: 18px;
+  }
+
+  .support-panel-header {
+    gap: 0.65rem;
+    padding: 0.72rem 0.78rem 0.68rem;
+  }
+
+  .support-panel-header-copy strong {
+    font-size: 0.96rem;
+  }
+
+  .support-panel-header-copy small {
+    font-size: 0.64rem;
+    line-height: 1.25;
+  }
+
+  .support-close {
+    width: 34px;
+    height: 34px;
+    font-size: 1.2rem;
+  }
+
+  .support-auth-view,
+  .support-body {
+    padding: 0.72rem;
+  }
+
+  .support-auth-card {
+    gap: 0.72rem;
+    padding: 0.72rem;
+    border-radius: 16px;
+  }
+
+  .support-auth-tabs {
+    gap: 0.5rem;
+  }
+
+  .support-auth-tab {
+    min-height: 38px;
+    font-size: 0.86rem;
+  }
+
+  .support-auth-copy {
+    font-size: 0.84rem;
+    line-height: 1.5;
+  }
+
+  .support-auth-field {
+    gap: 0.35rem;
+  }
+
+  .support-auth-field span {
+    font-size: 0.8rem;
+  }
+
+  .support-auth-field input {
+    min-height: 42px;
+    padding: 0.75rem 0.82rem;
+    border-radius: 14px;
+  }
+
+  .support-auth-submit {
+    min-height: 42px;
+    border-radius: 14px;
+    box-shadow: 0 12px 24px rgba(255, 133, 65, 0.18);
+  }
+
+  .support-thread {
+    max-height: 260px;
+    gap: 0.6rem;
+  }
+
+  .support-message {
+    max-width: min(100%, 240px);
+    padding: 0.78rem 0.82rem 0.74rem;
+  }
+
+  .support-message p {
+    margin-top: 0.38rem;
+    font-size: 0.92rem;
+    line-height: 1.55;
+  }
+
+  .support-input-row {
+    grid-template-columns: 1fr auto;
+    gap: 0.45rem;
+    padding: 0 0.72rem 0.72rem;
+    align-items: stretch;
+  }
+
+  .support-input-row input {
+    min-height: 42px;
+    padding: 0.72rem 0.82rem;
+    border-radius: 16px;
+    font-size: 0.9rem;
+  }
+
+  .support-input-row button {
+    width: auto;
+    min-width: 74px;
+    min-height: 42px;
+    padding: 0.72rem 0.9rem;
+    border-radius: 16px;
+    font-size: 0.92rem;
+  }
+
+  .support-status {
+    padding: 0 0.72rem 0.72rem;
+    font-size: 0.78rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .support-panel {
+    width: calc(100vw - 0.5rem);
+    max-height: min(calc(100svh - 4rem), 520px);
+  }
+
+  .support-panel-header {
+    padding: 0.68rem 0.72rem 0.64rem;
+  }
+
+  .support-panel-header-copy strong {
+    font-size: 0.92rem;
+  }
+
+  .support-panel-header-copy small {
+    font-size: 0.62rem;
+  }
+
+  .support-auth-tab {
+    min-height: 36px;
+    font-size: 0.83rem;
+  }
+
+  .support-auth-field input {
+    min-height: 40px;
+    padding: 0.68rem 0.76rem;
+  }
+
+  .support-auth-submit {
+    min-height: 40px;
+  }
+
+  .support-thread {
+    max-height: 230px;
+  }
+
+  .support-message {
+    max-width: min(100%, 220px);
+  }
+
+  .support-input-row input,
+  .support-input-row button {
+    min-height: 40px;
+  }
+}
+
 .admin-shell {
   background:
     linear-gradient(rgba(47, 120, 167, 0.08) 1px, transparent 1px),
