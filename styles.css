@@ -2538,7 +2538,7 @@ label {
   border-radius: 0;
   overflow: hidden;
   border: 0;
-  background: url("image/background.jpg") center center / cover no-repeat;
+  background: url("background.jpg") center center / cover no-repeat;
   box-shadow: none;
 }
 
