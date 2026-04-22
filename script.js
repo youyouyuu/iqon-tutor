@@ -211,12 +211,12 @@ const translations = {
     open_line_chat: "เปิดแชตพร้อมข้อความแพ็กเกจนี้",
     add_line_friend: "เพิ่มเพื่อนทาง LINE",
     save_line_qr: "บันทึก QR Code LINE",
-    support_status_connected: "เชื่อมต่อกับห้องแชตแล้ว",
-    support_status_start: "เริ่มต้นถามคำถามได้เลย ทีมงานจะเห็นข้อความนี้ในหลังบ้าน",
+    support_status_connected: "เชื่อมต่อกับ IQON AI แล้ว",
+    support_status_start: "เริ่มต้นถามคำถามได้เลย IQON AI จะตอบกลับอัตโนมัติในห้องแชตนี้",
     support_status_load_error: "ยังไม่สามารถโหลดข้อความได้ในขณะนี้",
     support_error_empty: "กรุณาพิมพ์ข้อความก่อนส่ง",
     support_status_sending: "กำลังส่งข้อความ...",
-    support_status_sent: "ส่งข้อความแล้ว ทีมงานจะตอบกลับในห้องแชตนี้",
+    support_status_sent: "ส่งข้อความแล้ว IQON AI กำลังตอบกลับในห้องแชตนี้",
     support_status_send_error: "ยังส่งข้อความไม่สำเร็จ กรุณาลองอีกครั้ง",
     form_status_sending: "กำลังส่งข้อมูลเข้าสู่ระบบ...",
     form_error_name: "กรุณากรอกชื่อผู้ปกครองหรือนักเรียน",
@@ -268,12 +268,12 @@ const translations = {
     open_line_chat: "Open chat with this package message",
     add_line_friend: "Add Friend on LINE",
     save_line_qr: "Save LINE QR Code",
-    support_status_connected: "Connected to the chat room",
-    support_status_start: "Start typing your question. Our team can see it from the admin dashboard.",
+    support_status_connected: "Connected to IQON AI",
+    support_status_start: "Start typing your question. IQON AI will reply automatically in this chat.",
     support_status_load_error: "Unable to load messages right now",
     support_error_empty: "Please type a message before sending",
     support_status_sending: "Sending your message...",
-    support_status_sent: "Message sent. Our team will reply in this chat.",
+    support_status_sent: "Message sent. IQON AI is replying in this chat.",
     support_status_send_error: "Message could not be sent. Please try again.",
     form_status_sending: "Sending your information...",
     form_error_name: "Please enter the parent or student name",
@@ -1433,6 +1433,19 @@ const buildSystemGreeting = () => {
     : "สวัสดีค่ะ หากสนใจคอร์สเรียนหรือโปรโมชันของ IQON สามารถพิมพ์คำถามไว้ได้เลย ทีมงานจะตอบกลับจากหลังบ้านในเว็บนี้โดยตรงค่ะ";
 };
 
+const getSupportGreetingMessage = () => {
+  const isCoursesPage = window.location.pathname.includes("courses");
+  if (currentLanguage === "en") {
+    return isCoursesPage
+      ? "Hello. If you are not sure which package fits you, send your question here and IQON AI will help recommend the best option."
+      : "Hello. If you are interested in IQON courses or promotions, leave your question here and IQON AI will reply in this chat.";
+  }
+
+  return isCoursesPage
+    ? "สวัสดีค่ะ หากยังไม่แน่ใจว่าจะเลือกแพ็กเกจไหน สามารถพิมพ์ถามไว้ได้เลย IQON AI จะช่วยแนะนำตัวเลือกที่เหมาะให้ค่ะ"
+    : "สวัสดีค่ะ หากสนใจคอร์สเรียนหรือโปรโมชันของ IQON สามารถพิมพ์คำถามไว้ได้เลย IQON AI จะตอบกลับในห้องแชตนี้ค่ะ";
+};
+
 const createSupportMessageElement = ({ sender, message, created_at: createdAt }) => {
   const bubble = document.createElement("div");
   bubble.className = `support-message support-message-${sender}`;
@@ -1447,6 +1460,10 @@ const createSupportMessageElement = ({ sender, message, created_at: createdAt })
   const timeLabel = document.createElement("span");
   timeLabel.className = "support-time";
   timeLabel.textContent = sender === "system" ? "วันนี้" : formatChatTime(createdAt);
+
+  if (sender === "assistant") {
+    senderLabel.textContent = "IQON AI";
+  }
 
   const paragraph = document.createElement("p");
   paragraph.textContent = message;
@@ -1467,7 +1484,7 @@ const renderSupportMessages = (messages) => {
   supportThread.appendChild(
     createSupportMessageElement({
       sender: "system",
-      message: buildSystemGreeting(),
+      message: getSupportGreetingMessage(),
     }),
   );
 

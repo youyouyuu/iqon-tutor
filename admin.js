@@ -24,6 +24,15 @@ const chatStatus = document.querySelector("#admin-chat-status");
 const chatSearchInput = document.querySelector("#chat-search-input");
 const chatRefreshButton = document.querySelector("#chat-refresh-button");
 const chatTotalBadge = document.querySelector("#chat-total-badge");
+const chatSideAvatar = document.querySelector("#chat-side-avatar");
+const chatSideTitle = document.querySelector("#chat-side-title");
+const chatSideSubtitle = document.querySelector("#chat-side-subtitle");
+const chatSideEmail = document.querySelector("#chat-side-email");
+const chatSideSource = document.querySelector("#chat-side-source");
+const chatSideCreated = document.querySelector("#chat-side-created");
+const chatSideUpdated = document.querySelector("#chat-side-updated");
+const chatSideCount = document.querySelector("#chat-side-count");
+const chatSidePreview = document.querySelector("#chat-side-preview");
 
 const adminTabs = Array.from(document.querySelectorAll("[data-admin-tab]"));
 const adminPanels = Array.from(document.querySelectorAll("[data-admin-panel]"));
@@ -38,6 +47,9 @@ let refreshHandle = null;
 let selectedConversationId = sessionStorage.getItem(CHAT_STORAGE_KEY) || "";
 let activeAdminTab = sessionStorage.getItem(TAB_STORAGE_KEY) || "overview";
 let allConversations = [];
+let notificationAudioContext = null;
+let conversationSnapshot = new Map();
+let hasConversationSnapshot = false;
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -85,6 +97,91 @@ function formatTime(value) {
     return String(value);
   }
 }
+
+function ensureNotificationAudioContext() {
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContextClass) {
+    return null;
+  }
+
+  if (!notificationAudioContext) {
+    notificationAudioContext = new AudioContextClass();
+  }
+
+  if (notificationAudioContext.state === "suspended") {
+    notificationAudioContext.resume().catch(() => {});
+  }
+
+  return notificationAudioContext;
+}
+
+function playNotificationSound() {
+  const audioContext = ensureNotificationAudioContext();
+  if (!audioContext) {
+    return;
+  }
+
+  const now = audioContext.currentTime;
+  const oscillator = audioContext.createOscillator();
+  const gain = audioContext.createGain();
+
+  oscillator.type = "sine";
+  oscillator.frequency.setValueAtTime(880, now);
+  oscillator.frequency.exponentialRampToValueAtTime(660, now + 0.16);
+
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.exponentialRampToValueAtTime(0.08, now + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
+
+  oscillator.connect(gain);
+  gain.connect(audioContext.destination);
+  oscillator.start(now);
+  oscillator.stop(now + 0.2);
+}
+
+function updateConversationSnapshot(conversations) {
+  const nextSnapshot = new Map();
+  let shouldNotify = false;
+
+  conversations.forEach((conversation) => {
+    const signature = [
+      conversation.message_count || 0,
+      conversation.updated_at || "",
+      conversation.latest_sender || "",
+      conversation.latest_message || "",
+    ].join("|");
+
+    const previousSignature = conversationSnapshot.get(conversation.id);
+    nextSnapshot.set(conversation.id, signature);
+
+    if (!hasConversationSnapshot) {
+      return;
+    }
+
+    const hasIncomingUpdate =
+      previousSignature !== signature &&
+      conversation.latest_sender !== "admin";
+
+    if (hasIncomingUpdate) {
+      shouldNotify = true;
+    }
+  });
+
+  conversationSnapshot = nextSnapshot;
+  hasConversationSnapshot = true;
+
+  if (shouldNotify) {
+    playNotificationSound();
+  }
+}
+
+document.addEventListener(
+  "pointerdown",
+  () => {
+    ensureNotificationAudioContext();
+  },
+  { passive: true },
+);
 
 function formatPageLabel(pathname) {
   const path = String(pathname || "").trim();
@@ -203,6 +300,76 @@ function getFilteredConversations() {
 
     return haystacks.some((value) => String(value || "").toLowerCase().includes(keyword));
   });
+}
+
+function renderChatInfoPanel(conversation = null, messages = []) {
+  if (!chatSideTitle) {
+    return;
+  }
+
+  if (!conversation) {
+    if (chatSideAvatar) {
+      chatSideAvatar.textContent = "IQ";
+    }
+    chatSideTitle.textContent = "เลือกห้องแชต";
+    if (chatSideSubtitle) {
+      chatSideSubtitle.textContent = "เลือกห้องจากรายการด้านซ้ายเพื่อดูข้อมูลบทสนทนา";
+    }
+    if (chatSideEmail) {
+      chatSideEmail.textContent = "-";
+    }
+    if (chatSideSource) {
+      chatSideSource.textContent = "-";
+    }
+    if (chatSideCreated) {
+      chatSideCreated.textContent = "-";
+    }
+    if (chatSideUpdated) {
+      chatSideUpdated.textContent = "-";
+    }
+    if (chatSideCount) {
+      chatSideCount.textContent = "0";
+    }
+    if (chatSidePreview) {
+      chatSidePreview.textContent = "ยังไม่มีข้อความ";
+    }
+    return;
+  }
+
+  const roomTitle = getConversationDisplayTitle(conversation);
+  const lastMessage = messages.length ? messages[messages.length - 1] : null;
+  const lastSenderLabel =
+    lastMessage?.sender === "admin"
+      ? "ทีมงาน IQON"
+      : conversation.user_name || conversation.user_email || "สมาชิกเว็บไซต์";
+
+  const resolvedLastSenderLabel = lastMessage?.sender === "assistant" ? "IQON AI" : lastSenderLabel;
+
+  if (chatSideAvatar) {
+    chatSideAvatar.textContent = getConversationAvatarLabel(conversation);
+  }
+  chatSideTitle.textContent = roomTitle;
+  if (chatSideSubtitle) {
+    chatSideSubtitle.textContent = `${lastSenderLabel} • อัปเดต ${formatTime(conversation.updated_at) || "-"}`;
+  }
+  if (chatSideEmail) {
+    chatSideEmail.textContent = conversation.user_email || "-";
+  }
+  if (chatSideSource) {
+    chatSideSource.textContent = formatPageLabel(conversation.source_page);
+  }
+  if (chatSideCreated) {
+    chatSideCreated.textContent = formatDateTime(conversation.created_at);
+  }
+  if (chatSideUpdated) {
+    chatSideUpdated.textContent = formatDateTime(conversation.updated_at);
+  }
+  if (chatSideCount) {
+    chatSideCount.textContent = String(messages.length || conversation.message_count || 0);
+  }
+  if (chatSidePreview) {
+    chatSidePreview.textContent = lastMessage?.message || conversation.latest_message || "ยังไม่มีข้อความ";
+  }
 }
 
 async function loginRequest(username, password) {
@@ -324,6 +491,7 @@ function renderEmptyChatState(message) {
     chatRoomAvatar.textContent = "IQ";
   }
 
+  renderChatInfoPanel(null, []);
   setReplyState(false);
 }
 
@@ -369,6 +537,9 @@ function renderConversations(conversations) {
             ? "ผู้ใช้ส่งล่าสุด"
             : "ห้องแชตใหม่";
 
+      const previewSenderText =
+        conversation.latest_sender === "assistant" ? "IQON AI ตอบล่าสุด" : senderText;
+
       return `
         <button
           class="admin-chat-conversation${isActive ? " is-active" : ""}"
@@ -385,7 +556,7 @@ function renderConversations(conversations) {
                 </div>
                 <span class="admin-chat-badge">${escapeHtml(String(conversation.message_count || 0))}</span>
               </div>
-              <div class="admin-chat-conversation-preview">${escapeHtml(senderText)}: ${escapeHtml(preview)}</div>
+              <div class="admin-chat-conversation-preview">${escapeHtml(previewSenderText)}: ${escapeHtml(preview)}</div>
             </div>
           </div>
         </button>
@@ -430,6 +601,8 @@ function renderChatMessages(conversation, messages) {
     chatRoomAvatar.textContent = getConversationAvatarLabel(conversation);
   }
 
+  renderChatInfoPanel(conversation, messages);
+
   if (!messages.length) {
     chatThread.innerHTML = `<div class="empty-state">ห้องนี้ยังไม่มีข้อความ</div>`;
   } else {
@@ -441,10 +614,14 @@ function renderChatMessages(conversation, messages) {
             ? "ทีมงาน IQON"
             : conversation.user_name || conversation.user_email || "สมาชิกเว็บไซต์";
 
+        const resolvedSenderClass =
+          item.sender === "assistant" ? "admin-chat-message-assistant" : senderClass;
+        const resolvedSenderLabel = item.sender === "assistant" ? "IQON AI" : senderLabel;
+
         return `
-          <article class="admin-chat-message ${senderClass}">
+          <article class="admin-chat-message ${resolvedSenderClass}">
             <div class="admin-chat-message-meta">
-              <strong>${escapeHtml(senderLabel)}</strong>
+              <strong>${escapeHtml(resolvedSenderLabel)}</strong>
               <span>${escapeHtml(formatTime(item.created_at))}</span>
             </div>
             <div class="admin-chat-message-body">${escapeHtml(item.message)}</div>
@@ -506,6 +683,7 @@ async function loadDashboard() {
   renderTable(inquiriesPayload.inquiries || []);
 
   allConversations = conversationsPayload.conversations || [];
+  updateConversationSnapshot(allConversations);
   renderConversations(getFilteredConversations());
 
   if (selectedConversationId) {

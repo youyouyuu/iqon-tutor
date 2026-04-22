@@ -40,6 +40,7 @@ CHAT_MESSAGE_LIMIT = 800
 PASSWORD_MIN_LENGTH = 8
 SESSION_COOKIE_NAME = "iqon_session"
 SESSION_DURATION = timedelta(days=30)
+AI_ASSISTANT_NAME = "IQON AI"
 
 
 def utc_now() -> str:
@@ -113,6 +114,176 @@ def verify_password(password: str, password_hash: str) -> bool:
 
 def build_session_expiry() -> str:
     return (datetime.utcnow() + SESSION_DURATION).replace(microsecond=0).isoformat() + "Z"
+
+
+def normalize_chat_text(value: str) -> str:
+    return re.sub(r"\s+", " ", str(value or "").strip().lower())
+
+
+def contains_any(text: str, keywords: tuple[str, ...]) -> bool:
+    return any(keyword in text for keyword in keywords)
+
+
+def detect_chat_language(message: str) -> str:
+    ascii_letters = sum(1 for char in message if char.isascii() and char.isalpha())
+    thai_letters = sum(1 for char in message if "\u0e00" <= char <= "\u0e7f")
+    return "en" if ascii_letters > thai_letters else "th"
+
+
+def build_course_recommendation(text: str, language: str) -> str:
+    subject = None
+    level = None
+
+    if contains_any(text, ("คณิต", "math", "mathematics", "เลข")):
+        subject = ("คณิตศาสตร์", "Mathematics")
+    elif contains_any(text, ("วิทย์", "วิทยาศาสตร์", "science")):
+        subject = ("วิทยาศาสตร์", "Science")
+    elif contains_any(text, ("อังกฤษ", "english")):
+        subject = ("อังกฤษ", "English")
+    elif contains_any(text, ("ฟิสิกส์", "physics")):
+        subject = ("ฟิสิกส์", "Physics")
+    elif contains_any(text, ("เคมี", "chemistry")):
+        subject = ("เคมี", "Chemistry")
+    elif contains_any(text, ("ชีวะ", "ชีววิทยา", "biology")):
+        subject = ("ชีววิทยา", "Biology")
+    elif contains_any(text, ("สอบเข้า", "entrance", "admission")):
+        subject = ("ติวสอบเข้า", "Entrance Exam Prep")
+    elif contains_any(text, ("ปูพื้นฐาน", "พื้นฐาน", "foundation", "basic")):
+        subject = ("ปูพื้นฐาน", "Foundation")
+
+    if contains_any(text, ("ประถม", "primary", "ป.", "p.")):
+        level = ("ประถม", "Primary")
+    elif contains_any(text, ("ม.ต้น", "มัธยมต้น", "middle school", "junior high")):
+        level = ("มัธยมต้น", "Lower Secondary")
+    elif contains_any(text, ("ม.ปลาย", "มัธยมปลาย", "high school", "senior high")):
+        level = ("มัธยมปลาย", "Upper Secondary")
+
+    if language == "en":
+        if subject and level:
+            return (
+                f"For {level[1]} {subject[1]}, the best fit is usually a focused small-group or foundation plan "
+                "so the teaching pace can match the student's current level and goals."
+            )
+        if subject:
+            return (
+                f"We do offer {subject[1]} support. If you share the student's level and goal "
+                "(foundation, school improvement, or exam prep), I can narrow it down better."
+            )
+        if level:
+            return (
+                f"For {level[1]} students, we usually recommend choosing by subject goal first "
+                "(foundation, stronger grades, or exam preparation)."
+            )
+        return ""
+
+    if subject and level:
+        return (
+            f"ถ้าเป็น{subject[0]}ระดับ{level[0]} ปกติจะแนะนำเป็นกลุ่มเล็กหรือคอร์สปูพื้นฐานก่อน "
+            "เพื่อให้ปรับจังหวะการสอนตามพื้นฐานและเป้าหมายของผู้เรียนได้เหมาะที่สุดค่ะ"
+        )
+    if subject:
+        return (
+            f"ทางสถาบันมีคอร์ส{subject[0]}ค่ะ ถ้าแจ้งระดับชั้นและเป้าหมายเพิ่มอีกนิด "
+            "(ปูพื้นฐาน เพิ่มเกรด หรือเตรียมสอบ) ฉันช่วยแนะนำให้ตรงขึ้นได้เลย"
+        )
+    if level:
+        return (
+            f"ถ้าเป็นผู้เรียนระดับ{level[0]} ปกติจะแนะนำโดยดูจากวิชาที่ต้องการเสริมและเป้าหมายหลักก่อน "
+            "เช่น ปูพื้นฐาน เพิ่มคะแนน หรือเตรียมสอบค่ะ"
+        )
+    return ""
+
+
+def build_ai_chat_reply(message: str, source_page: str = "", user_name: str = "") -> str:
+    text = normalize_chat_text(message)
+    if not text:
+        return ""
+
+    language = detect_chat_language(message)
+    recommendation = build_course_recommendation(text, language)
+    reply_parts: list[str] = []
+
+    if language == "en":
+        if contains_any(text, ("hello", "hi", "hey", "good morning", "good afternoon")) and len(text) <= 40:
+            reply_parts.append(
+                "Hello, welcome to IQON. I can help recommend courses, explain prices, and guide you on the next step."
+            )
+        if contains_any(text, ("price", "cost", "fee", "tuition", "promotion", "package")):
+            reply_parts.append(
+                "From the current website information, the solo package starts at 4,599 THB and the pair package starts at 3,899 THB. "
+                "There is also a free assessment / trial option for placement."
+            )
+        if contains_any(text, ("subject", "course", "class", "program")):
+            reply_parts.append(
+                "IQON offers Mathematics, Science, English, Physics, Chemistry, Biology, entrance exam prep, extension courses, and foundation courses."
+            )
+        if contains_any(text, ("trial", "assessment", "schedule", "time", "book")):
+            reply_parts.append(
+                "You can start with a free assessment. If you share the student's level, subject, and preferred time, I can suggest the next step clearly."
+            )
+        if contains_any(text, ("where", "location", "address", "map")):
+            reply_parts.append(
+                "The institute is located at 90/9 Tha Luang Road, Wat Mai, Chanthaburi 22000."
+            )
+        if contains_any(text, ("line", "facebook", "phone", "contact", "call")):
+            reply_parts.append(
+                "Direct contact channels are LINE, Facebook page, and phone 094-174-8919."
+            )
+        if recommendation:
+            reply_parts.append(recommendation)
+        if contains_any(text, ("thanks", "thank you")):
+            reply_parts = ["You are welcome. If you want, tell me the student's level and subject and I will help narrow the best option."]
+        if contains_any(text, ("bye", "goodbye")):
+            reply_parts = ["Thank you for chatting with IQON. Feel free to come back anytime."]
+        if not reply_parts:
+            reply_parts.append(
+                "I can help with course recommendations, prices, subject options, location, and contact details. "
+                "Tell me the student's level and subject you are interested in."
+            )
+        return "\n\n".join(reply_parts[:2])
+
+    if contains_any(text, ("สวัสดี", "ดีครับ", "ดีค่ะ", "หวัดดี", "hello", "hi")) and len(text) <= 50:
+        reply_parts.append(
+            "สวัสดีค่ะ ยินดีต้อนรับสู่ IQON ฉันช่วยแนะนำคอร์ส ราคา และแนวทางลงเรียนให้ได้เลยค่ะ"
+        )
+    if contains_any(text, ("ราคา", "ค่าเรียน", "โปร", "โปรโมชั่น", "แพ็กเกจ", "กี่บาท")):
+        reply_parts.append(
+            "จากข้อมูลบนหน้าเว็บตอนนี้ แพ็กเกจเดี่ยวเริ่มต้น 4,599 บาท และแพ็กเกจคู่เริ่มต้น 3,899 บาท "
+            "พร้อมมีทดลองเรียนหรือวัดระดับฟรีเพื่อช่วยเลือกคอร์สให้เหมาะกับผู้เรียนค่ะ"
+        )
+    if contains_any(text, ("คอร์ส", "วิชา", "เรียนอะไร", "มีอะไรบ้าง")):
+        reply_parts.append(
+            "ทางสถาบันมีคอร์สคณิต วิทยาศาสตร์ อังกฤษ ฟิสิกส์ เคมี ชีววิทยา ติวสอบเข้า เพิ่มเนื้อหา และปูพื้นฐานค่ะ"
+        )
+    if contains_any(text, ("ทดลอง", "วัดระดับ", "รอบเรียน", "เวลา", "นัด", "สมัคร")):
+        reply_parts.append(
+            "สามารถเริ่มจากทดลองเรียนหรือวัดระดับฟรีได้ค่ะ ถ้าแจ้งระดับชั้น วิชาที่สนใจ และเวลาที่สะดวก "
+            "ฉันช่วยสรุปแนวทางต่อให้ได้เลย"
+        )
+    if contains_any(text, ("ที่ไหน", "แผนที่", "ที่อยู่", "อยู่ตรงไหน")):
+        reply_parts.append(
+            "สถาบันอยู่ที่ 90/9 ถนนท่าหลวง ตำบลวัดใหม่ จังหวัดจันทบุรี 22000 ค่ะ"
+        )
+    if contains_any(text, ("line", "ไลน์", "facebook", "เฟซ", "โทร", "เบอร์", "ติดต่อ")):
+        reply_parts.append(
+            "ช่องทางติดต่อโดยตรงมี Line, Facebook Page และเบอร์โทร 094-174-8919 ค่ะ"
+        )
+    if recommendation:
+        reply_parts.append(recommendation)
+    if contains_any(text, ("ขอบคุณ", "thanks", "thank you")):
+        reply_parts = ["ยินดีมากค่ะ ถ้าต้องการ ฉันช่วยแนะนำคอร์สให้ต่อได้เลย แค่บอกระดับชั้นกับวิชาที่สนใจค่ะ"]
+    if contains_any(text, ("บาย", "ลาก่อน")):
+        reply_parts = ["ขอบคุณที่ติดต่อ IQON ค่ะ หากสะดวกเมื่อไรกลับมาถามต่อได้เสมอค่ะ"]
+    if not reply_parts:
+        reply_parts.append(
+            "ฉันช่วยตอบเรื่องคอร์ส ราคา วิชาที่เปิดสอน การทดลองเรียน และช่องทางติดต่อได้ค่ะ "
+            "ถ้าบอกระดับชั้นกับวิชาที่สนใจ ฉันจะช่วยแนะนำให้ตรงขึ้นค่ะ"
+        )
+
+    if user_name and len(reply_parts) == 1 and contains_any(text, ("ราคา", "คอร์ส", "วิชา", "ทดลอง", "สมัคร")):
+        reply_parts[0] = f"{user_name} {reply_parts[0]}"
+
+    return "\n\n".join(reply_parts[:2])
 
 
 def should_use_secure_cookie() -> bool:
@@ -848,6 +1019,8 @@ class AppHandler(SimpleHTTPRequestHandler):
             return
 
         now = utc_now()
+        assistant_reply = ""
+        assistant_time = now
         with get_connection() as connection:
             user = self.require_chat_auth(connection)
             if user is None:
@@ -894,6 +1067,29 @@ class AppHandler(SimpleHTTPRequestHandler):
                 """,
                 (conversation_id, message, now),
             )
+            assistant_reply = build_ai_chat_reply(
+                message,
+                source_page=source_page,
+                user_name=str(row_value(user, "full_name", "")).strip(),
+            )
+            latest_timestamp = now
+            if assistant_reply:
+                assistant_time = utc_now()
+                execute_query(
+                    connection,
+                    """
+                    INSERT INTO chat_messages (conversation_id, sender, message, created_at)
+                    VALUES (?, 'assistant', ?, ?)
+                    """,
+                    (conversation_id, assistant_reply, assistant_time),
+                )
+                latest_timestamp = assistant_time
+
+            execute_query(
+                connection,
+                "UPDATE chat_conversations SET updated_at = ? WHERE id = ?",
+                (latest_timestamp, conversation_id),
+            )
             connection.commit()
 
         self.respond_json(
@@ -906,6 +1102,15 @@ class AppHandler(SimpleHTTPRequestHandler):
                     "message": message,
                     "created_at": now,
                 },
+                "assistant_message": (
+                    {
+                        "sender": "assistant",
+                        "message": assistant_reply,
+                        "created_at": assistant_time,
+                    }
+                    if assistant_reply
+                    else None
+                ),
             },
         )
 
