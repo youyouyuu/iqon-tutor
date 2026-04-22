@@ -104,51 +104,86 @@
             <span class="level-test-card-badge">Mathematics</span>
             <h3>คณิตศาสตร์</h3>
             <p>เช็กพื้นฐานเรื่องจำนวน สมการ และการคิดแบบเป็นขั้นตอน</p>
-            <a class="button button-secondary" href="#test-math">เริ่มแบบทดสอบ</a>
+            <a class="button button-secondary level-test-card-action" href="#level-quiz-panel" data-level-tab-trigger="math">เริ่มแบบทดสอบ</a>
           </article>
           <article class="level-test-card">
             <span class="level-test-card-badge">Science</span>
             <h3>วิทยาศาสตร์</h3>
             <p>เช็กความเข้าใจแนวคิดวิทยาศาสตร์ทั่วไปและการทดลองพื้นฐาน</p>
-            <a class="button button-secondary" href="#test-science">เริ่มแบบทดสอบ</a>
+            <a class="button button-secondary level-test-card-action" href="#level-quiz-panel" data-level-tab-trigger="science">เริ่มแบบทดสอบ</a>
           </article>
           <article class="level-test-card">
             <span class="level-test-card-badge">English</span>
             <h3>ภาษาอังกฤษ</h3>
             <p>เช็กคำศัพท์ ไวยากรณ์ และการอ่านจับใจความเบื้องต้น</p>
-            <a class="button button-secondary" href="#test-english">เริ่มแบบทดสอบ</a>
+            <a class="button button-secondary level-test-card-action" href="#level-quiz-panel" data-level-tab-trigger="english">เริ่มแบบทดสอบ</a>
           </article>
           <article class="level-test-card">
             <span class="level-test-card-badge">Physics</span>
             <h3>ฟิสิกส์</h3>
             <p>เช็กความเข้าใจเรื่องแรง การเคลื่อนที่ และการใช้เหตุผลเชิงปริมาณ</p>
-            <a class="button button-secondary" href="#test-physics">เริ่มแบบทดสอบ</a>
+            <a class="button button-secondary level-test-card-action" href="#level-quiz-panel" data-level-tab-trigger="physics">เริ่มแบบทดสอบ</a>
           </article>
           <article class="level-test-card">
             <span class="level-test-card-badge">Chemistry</span>
             <h3>เคมี</h3>
             <p>เช็กพื้นฐานเรื่องสาร ปฏิกิริยา และการสังเกตการเปลี่ยนแปลงของสสาร</p>
-            <a class="button button-secondary" href="#test-chemistry">เริ่มแบบทดสอบ</a>
+            <a class="button button-secondary level-test-card-action" href="#level-quiz-panel" data-level-tab-trigger="chemistry">เริ่มแบบทดสอบ</a>
           </article>
           <article class="level-test-card">
             <span class="level-test-card-badge">Biology</span>
             <h3>ชีววิทยา</h3>
             <p>เช็กความเข้าใจเรื่องสิ่งมีชีวิต เซลล์ และระบบในร่างกาย</p>
-            <a class="button button-secondary" href="#test-biology">เริ่มแบบทดสอบ</a>
+            <a class="button button-secondary level-test-card-action" href="#level-quiz-panel" data-level-tab-trigger="biology">เริ่มแบบทดสอบ</a>
           </article>
         </div>
       </div>
     </section>
 
-    <section class="section level-quiz-section-wrap">
-      <div class="container level-quiz-stack">
-        <article class="level-quiz-card" id="test-math">
+    <section class="section level-quiz-section-wrap" id="level-quiz-panel">
+      <div class="container level-quiz-shell">
+        <aside class="level-quiz-sidebar">
+          <p class="eyebrow">Placement Flow</p>
+          <h2>ทำแบบทดสอบทีละวิชา แบบหน้าเดียวอ่านง่ายขึ้น</h2>
+          <p class="level-quiz-sidebar-copy">
+            โครงหน้านี้ถูกจัดใหม่ให้คล้ายแบบทดสอบออนไลน์สมัยใหม่มากขึ้น โดยรวมแท็บวิชา ผลความคืบหน้า และข้อสอบไว้ในพื้นที่เดียวกัน
+          </p>
+          <div class="level-quiz-progress-card">
+            <span class="level-quiz-progress-label" id="level-quiz-current-subject">คณิตศาสตร์</span>
+            <strong id="level-quiz-progress-count">ตอบแล้ว 0/3 ข้อ</strong>
+            <div class="level-quiz-progress-bar" aria-hidden="true">
+              <span id="level-quiz-progress-fill"></span>
+            </div>
+            <small id="level-quiz-progress-hint">เลือกคำตอบให้ครบก่อนตรวจผล ระบบจะสรุประดับให้ทันที</small>
+          </div>
+          <ul class="level-quiz-sidebar-list">
+            <li>สลับวิชาได้ทันทีจากแท็บด้านขวา</li>
+            <li>แต่ละวิชามีข้อสั้น ๆ เพื่อเช็กพื้นฐานก่อนเรียน</li>
+            <li>รองรับทั้งมือถือและคอมโดยไม่ต้องเปิดหลายหน้า</li>
+          </ul>
+        </aside>
+
+        <div class="level-quiz-main">
+          <div class="level-quiz-tab-list" role="tablist" aria-label="เลือกแบบทดสอบรายวิชา">
+            <button class="level-quiz-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="test-math" data-level-tab-trigger="math">คณิตศาสตร์</button>
+            <button class="level-quiz-tab" type="button" role="tab" aria-selected="false" aria-controls="test-science" data-level-tab-trigger="science">วิทยาศาสตร์</button>
+            <button class="level-quiz-tab" type="button" role="tab" aria-selected="false" aria-controls="test-english" data-level-tab-trigger="english">ภาษาอังกฤษ</button>
+            <button class="level-quiz-tab" type="button" role="tab" aria-selected="false" aria-controls="test-physics" data-level-tab-trigger="physics">ฟิสิกส์</button>
+            <button class="level-quiz-tab" type="button" role="tab" aria-selected="false" aria-controls="test-chemistry" data-level-tab-trigger="chemistry">เคมี</button>
+            <button class="level-quiz-tab" type="button" role="tab" aria-selected="false" aria-controls="test-biology" data-level-tab-trigger="biology">ชีววิทยา</button>
+          </div>
+
+          <div class="level-quiz-stack">
+        <article class="level-quiz-card is-active" id="test-math" data-level-tab-panel="math" data-subject-label="คณิตศาสตร์" role="tabpanel">
           <div class="level-quiz-head">
             <div>
               <p class="eyebrow">Mathematics</p>
               <h2>แบบทดสอบวัดระดับคณิตศาสตร์</h2>
             </div>
-            <span class="level-quiz-chip">3 ข้อ</span>
+            <div class="level-quiz-head-meta">
+              <span class="level-quiz-chip">3 ข้อ</span>
+              <span class="level-quiz-chip subtle">เริ่มต้น</span>
+            </div>
           </div>
           <form class="level-quiz-form" data-level-quiz>
             <fieldset class="level-quiz-question">
@@ -178,13 +213,16 @@
           </form>
         </article>
 
-        <article class="level-quiz-card" id="test-science">
+        <article class="level-quiz-card" id="test-science" data-level-tab-panel="science" data-subject-label="วิทยาศาสตร์" role="tabpanel" hidden>
           <div class="level-quiz-head">
             <div>
               <p class="eyebrow">Science</p>
               <h2>แบบทดสอบวัดระดับวิทยาศาสตร์</h2>
             </div>
-            <span class="level-quiz-chip">3 ข้อ</span>
+            <div class="level-quiz-head-meta">
+              <span class="level-quiz-chip">3 ข้อ</span>
+              <span class="level-quiz-chip subtle">พื้นฐานทั่วไป</span>
+            </div>
           </div>
           <form class="level-quiz-form" data-level-quiz>
             <fieldset class="level-quiz-question">
@@ -214,13 +252,16 @@
           </form>
         </article>
 
-        <article class="level-quiz-card" id="test-english">
+        <article class="level-quiz-card" id="test-english" data-level-tab-panel="english" data-subject-label="ภาษาอังกฤษ" role="tabpanel" hidden>
           <div class="level-quiz-head">
             <div>
               <p class="eyebrow">English</p>
               <h2>แบบทดสอบวัดระดับภาษาอังกฤษ</h2>
             </div>
-            <span class="level-quiz-chip">3 ข้อ</span>
+            <div class="level-quiz-head-meta">
+              <span class="level-quiz-chip">3 ข้อ</span>
+              <span class="level-quiz-chip subtle">Grammar</span>
+            </div>
           </div>
           <form class="level-quiz-form" data-level-quiz>
             <fieldset class="level-quiz-question">
@@ -250,13 +291,16 @@
           </form>
         </article>
 
-        <article class="level-quiz-card" id="test-physics">
+        <article class="level-quiz-card" id="test-physics" data-level-tab-panel="physics" data-subject-label="ฟิสิกส์" role="tabpanel" hidden>
           <div class="level-quiz-head">
             <div>
               <p class="eyebrow">Physics</p>
               <h2>แบบทดสอบวัดระดับฟิสิกส์</h2>
             </div>
-            <span class="level-quiz-chip">3 ข้อ</span>
+            <div class="level-quiz-head-meta">
+              <span class="level-quiz-chip">3 ข้อ</span>
+              <span class="level-quiz-chip subtle">Concept</span>
+            </div>
           </div>
           <form class="level-quiz-form" data-level-quiz>
             <fieldset class="level-quiz-question">
@@ -286,13 +330,16 @@
           </form>
         </article>
 
-        <article class="level-quiz-card" id="test-chemistry">
+        <article class="level-quiz-card" id="test-chemistry" data-level-tab-panel="chemistry" data-subject-label="เคมี" role="tabpanel" hidden>
           <div class="level-quiz-head">
             <div>
               <p class="eyebrow">Chemistry</p>
               <h2>แบบทดสอบวัดระดับเคมี</h2>
             </div>
-            <span class="level-quiz-chip">3 ข้อ</span>
+            <div class="level-quiz-head-meta">
+              <span class="level-quiz-chip">3 ข้อ</span>
+              <span class="level-quiz-chip subtle">สารและปฏิกิริยา</span>
+            </div>
           </div>
           <form class="level-quiz-form" data-level-quiz>
             <fieldset class="level-quiz-question">
@@ -322,13 +369,16 @@
           </form>
         </article>
 
-        <article class="level-quiz-card" id="test-biology">
+        <article class="level-quiz-card" id="test-biology" data-level-tab-panel="biology" data-subject-label="ชีววิทยา" role="tabpanel" hidden>
           <div class="level-quiz-head">
             <div>
               <p class="eyebrow">Biology</p>
               <h2>แบบทดสอบวัดระดับชีววิทยา</h2>
             </div>
-            <span class="level-quiz-chip">3 ข้อ</span>
+            <div class="level-quiz-head-meta">
+              <span class="level-quiz-chip">3 ข้อ</span>
+              <span class="level-quiz-chip subtle">สิ่งมีชีวิต</span>
+            </div>
           </div>
           <form class="level-quiz-form" data-level-quiz>
             <fieldset class="level-quiz-question">
@@ -357,6 +407,8 @@
             <p class="level-quiz-result" aria-live="polite"></p>
           </form>
         </article>
+          </div>
+        </div>
       </div>
     </section>
 
