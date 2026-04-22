@@ -19,7 +19,7 @@
       <header class="admin-header">
         <div class="admin-brand-wrap">
           <div class="admin-brand-badge" aria-hidden="true">
-            <img src="image/icon.jpg" alt="โลโก้ IQON">
+            <img src="/image/icon.jpg" alt="โลโก้ IQON">
           </div>
           <div>
             <p class="eyebrow">IQON Dashboard</p>
@@ -137,6 +137,11 @@
                 </div>
                 <button class="admin-compose-button" type="button" aria-label="รีเฟรชห้องแชต" id="chat-refresh-button">↻</button>
               </div>
+              <div class="admin-chat-filter-bar" aria-label="Conversation filters">
+                <span class="admin-chat-filter-chip is-active">All</span>
+                <span class="admin-chat-filter-chip">Recent</span>
+                <span class="admin-chat-filter-chip">Live</span>
+              </div>
               <div class="admin-chat-search-shell">
                 <input class="admin-chat-search" type="search" id="chat-search-input" placeholder="ค้นหาชื่อ อีเมล หรือข้อความ">
               </div>
@@ -158,11 +163,19 @@
                     <p class="helper-text" id="chat-room-meta">เมื่อมีข้อความจากหน้าเว็บ รายการจะขึ้นที่นี่</p>
                   </div>
                 </div>
+                <div class="admin-chat-main-actions" aria-label="Chat actions">
+                  <button class="admin-chat-icon-button" type="button" aria-label="Call">Call</button>
+                  <button class="admin-chat-icon-button" type="button" aria-label="Info">Info</button>
+                </div>
               </div>
               <div class="admin-chat-thread admin-chat-thread-instagram" id="admin-chat-thread">
                 <div class="empty-state">ยังไม่ได้เลือกห้องแชต</div>
               </div>
               <form class="admin-chat-reply admin-chat-reply-instagram" id="admin-chat-form">
+                <div class="admin-chat-composer-tools" aria-hidden="true">
+                  <button class="admin-chat-icon-button admin-chat-icon-button-soft" type="button" tabindex="-1">+</button>
+                  <button class="admin-chat-icon-button admin-chat-icon-button-soft" type="button" tabindex="-1">@</button>
+                </div>
                 <input type="text" id="admin-chat-input" placeholder="พิมพ์ข้อความตอบกลับถึงผู้ใช้" maxlength="800" disabled>
                 <button class="button button-primary" type="submit" id="admin-chat-send" disabled>ส่งตอบกลับ</button>
               </form>
