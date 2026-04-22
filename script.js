@@ -190,7 +190,7 @@ const translations = {
     hero_subtitle_home: "เรียนอย่างมีเป้าหมาย พร้อมทีมสอนที่เข้าใจผู้เรียนจริง ทั้งปรับพื้นฐาน เพิ่มเนื้อหา และเตรียมสอบอย่างเป็นระบบ",
     hero_cta_contact: "ติดต่อเรา",
     hero_cta_about: "เกี่ยวกับเรา",
-    book_consultation: "นัดหมายปรึกษา",
+    book_consultation: "Level Test",
     ask_via_line: "สอบถามผ่าน Line",
     ask_about_courses: "สอบถามคอร์สเรียน",
     view_courses: "ดูข้อมูลคอร์สเรียน",
@@ -232,6 +232,7 @@ const translations = {
     form_error_submit: "ไม่สามารถส่งข้อมูลได้ในขณะนี้ กรุณาตรวจสอบข้อมูลและลองใหม่อีกครั้ง",
     title_home: "สถาบันกวดวิชา IQON - ไอคิวออน",
     title_courses: "ข้อมูลคอร์สเรียน | สถาบันกวดวิชา IQON - ไอคิวออน",
+    title_level_test: "Level Test | สถาบันกวดวิชา IQON - ไอคิวออน",
   },
   en: {
     brand_tagline: "IQON Academic Institute",
@@ -247,7 +248,7 @@ const translations = {
     hero_subtitle_home: "Study with a teaching team that truly understands students, from foundations and content boosting to structured exam preparation.",
     hero_cta_contact: "Contact Us",
     hero_cta_about: "About Us",
-    book_consultation: "Book Consultation",
+    book_consultation: "Level Test",
     ask_via_line: "Ask via Line",
     ask_about_courses: "Ask About Courses",
     view_courses: "View Courses",
@@ -289,6 +290,7 @@ const translations = {
     form_error_submit: "We could not submit the form right now. Please try again.",
     title_home: "IQON Tutor Academy",
     title_courses: "Course Information | IQON Tutor Academy",
+    title_level_test: "Level Test | IQON Tutor Academy",
   },
 };
 
@@ -998,7 +1000,9 @@ const applyLanguage = (language) => {
     button.setAttribute("aria-pressed", String(isActive));
   });
 
-  if (window.location.pathname.includes("courses")) {
+  if (window.location.pathname.includes("level-test")) {
+    document.title = translations[currentLanguage].title_level_test;
+  } else if (window.location.pathname.includes("courses")) {
     document.title = translations[currentLanguage].title_courses;
   } else {
     document.title = translations[currentLanguage].title_home;

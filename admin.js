@@ -385,7 +385,7 @@ function renderChatInfoPanel(conversation = null, messages = []) {
   }
   chatSideTitle.textContent = roomTitle;
   if (chatSideSubtitle) {
-    chatSideSubtitle.textContent = `${lastSenderLabel} • อัปเดต ${formatTime(conversation.updated_at) || "-"}`;
+    chatSideSubtitle.textContent = `${resolvedLastSenderLabel} • อัปเดต ${formatTime(conversation.updated_at) || "-"}`;
   }
   if (chatSideEmail) {
     chatSideEmail.textContent = conversation.user_email || "-";
@@ -701,6 +701,20 @@ async function loadSelectedConversation() {
   }
 }
 
+async function loadChatConversationsOnly({ silentSelection = false } = {}) {
+  const conversationsPayload = await fetchJson("/api/admin/chat/conversations");
+
+  allConversations = conversationsPayload.conversations || [];
+  updateConversationSnapshot(allConversations);
+  renderConversations(getFilteredConversations());
+
+  if (selectedConversationId) {
+    await loadSelectedConversation();
+  } else if (!silentSelection) {
+    renderEmptyChatState(allConversations.length ? "เลือกห้องแชตเพื่อดูบทสนทนา" : "ยังไม่มีห้องแชต");
+  }
+}
+
 async function loadDashboard() {
   const [statsPayload, inquiriesPayload, conversationsPayload] = await Promise.all([
     fetchJson("/api/admin/stats"),
@@ -752,7 +766,13 @@ async function startDashboard() {
 
   refreshHandle = window.setInterval(async () => {
     try {
-      await loadDashboard();
+      if (activeAdminTab === "messages") {
+        await loadChatConversationsOnly({
+          silentSelection: true,
+        });
+      } else {
+        await loadDashboard();
+      }
     } catch (error) {
       handleAuthFailure(error);
     }
@@ -824,7 +844,9 @@ if (chatForm && chatInput) {
 
       chatInput.value = "";
       setChatStatus("ส่งข้อความเรียบร้อยแล้ว", "is-success");
-      await loadDashboard();
+      await loadChatConversationsOnly({
+        silentSelection: true,
+      });
       chatInput.focus();
     } catch (error) {
       setChatStatus("ยังไม่สามารถส่งข้อความได้ กรุณาลองอีกครั้ง", "is-error");
@@ -856,7 +878,13 @@ if (chatRefreshButton) {
   chatRefreshButton.addEventListener("click", async () => {
     setChatStatus("กำลังรีเฟรชข้อมูล...", "");
     try {
-      await loadDashboard();
+      if (activeAdminTab === "messages") {
+        await loadChatConversationsOnly({
+          silentSelection: true,
+        });
+      } else {
+        await loadDashboard();
+      }
       setChatStatus("อัปเดตรายการแชตแล้ว", "is-success");
     } catch (error) {
       setChatStatus("ยังรีเฟรชข้อมูลไม่ได้ กรุณาลองใหม่อีกครั้ง", "is-error");
