@@ -106,6 +106,8 @@ let supportAuthNameField = null;
 let supportAuthTabs = [];
 let supportUserLabel = null;
 let supportLogoutButton = null;
+let supportMessages = [];
+let supportSendPending = false;
 
 const safeStorage = {
   get(key) {
@@ -1446,6 +1448,14 @@ const getSupportGreetingMessage = () => {
     : "สวัสดีค่ะ หากสนใจคอร์สเรียนหรือโปรโมชันของ IQON สามารถพิมพ์คำถามไว้ได้เลย IQON AI จะตอบกลับในห้องแชตนี้ค่ะ";
 };
 
+const scrollSupportThreadToBottom = () => {
+  if (!supportThread) {
+    return;
+  }
+
+  supportThread.scrollTop = supportThread.scrollHeight;
+};
+
 const createSupportMessageElement = ({ sender, message, created_at: createdAt }) => {
   const bubble = document.createElement("div");
   bubble.className = `support-message support-message-${sender}`;
@@ -1480,6 +1490,7 @@ const renderSupportMessages = (messages) => {
     return;
   }
 
+  supportMessages = Array.isArray(messages) ? messages.map((item) => ({ ...item })) : [];
   supportThread.innerHTML = "";
   supportThread.appendChild(
     createSupportMessageElement({
@@ -1488,11 +1499,47 @@ const renderSupportMessages = (messages) => {
     }),
   );
 
-  messages.forEach((item) => {
+  supportMessages.forEach((item) => {
     supportThread.appendChild(createSupportMessageElement(item));
   });
 
-  supportThread.scrollTop = supportThread.scrollHeight;
+  scrollSupportThreadToBottom();
+};
+
+const queueSupportPendingMessage = (message) => {
+  const clientTempId = `support-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  renderSupportMessages([
+    ...supportMessages,
+    {
+      sender: "user",
+      message,
+      created_at: new Date().toISOString(),
+      client_temp_id: clientTempId,
+    },
+  ]);
+  return clientTempId;
+};
+
+const finalizeSupportPendingMessage = (clientTempId, payload) => {
+  const nextMessages = supportMessages.filter(
+    (item) => item.client_temp_id !== clientTempId,
+  );
+
+  if (payload?.message) {
+    nextMessages.push(payload.message);
+  }
+
+  if (payload?.assistant_message) {
+    nextMessages.push(payload.assistant_message);
+  }
+
+  renderSupportMessages(nextMessages);
+};
+
+const rollbackSupportPendingMessage = (clientTempId) => {
+  renderSupportMessages(
+    supportMessages.filter((item) => item.client_temp_id !== clientTempId),
+  );
 };
 
 const fetchSupportMessages = async () => {
@@ -1712,8 +1759,9 @@ if (supportWidget && supportPanel && supportOpen) {
       return;
     }
 
-    if (supportInput) {
-      supportInput.disabled = true;
+    if (supportSendPending) {
+      setSupportStatus(getText("support_status_sending"), "");
+      return;
     }
 
     const submitButton = supportForm.querySelector('button[type="submit"]');
@@ -1721,18 +1769,20 @@ if (supportWidget && supportPanel && supportOpen) {
       submitButton.disabled = true;
     }
 
+    supportSendPending = true;
+    const pendingMessageId = queueSupportPendingMessage(message);
+    if (supportInput) {
+      supportInput.value = "";
+      supportInput.focus();
+    }
     setSupportStatus(getText("support_status_sending"), "");
 
     try {
-      await sendSupportMessage(message);
-      if (supportInput) {
-        supportInput.value = "";
-      }
-      await loadSupportMessages({
-        silent: true,
-      });
+      const payload = await sendSupportMessage(message);
+      finalizeSupportPendingMessage(pendingMessageId, payload);
       setSupportStatus(getText("support_status_sent"), "is-success");
     } catch (error) {
+      rollbackSupportPendingMessage(pendingMessageId);
       if (error instanceof Error && error.name === "SupportAuthRequired") {
         setSupportAuthenticatedState(null);
         setSupportAuthMode("login");
@@ -1740,12 +1790,13 @@ if (supportWidget && supportPanel && supportOpen) {
       } else {
         setSupportStatus(getText("support_status_send_error"), "is-error");
       }
+      if (supportInput && !supportInput.value) {
+        supportInput.value = message;
+      }
     } finally {
-      if (supportInput) {
-        supportInput.disabled = false;
-        if (supportCurrentUser) {
-          supportInput.focus();
-        }
+      supportSendPending = false;
+      if (supportInput && supportCurrentUser) {
+        supportInput.focus();
       }
 
       if (submitButton) {

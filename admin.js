@@ -5,6 +5,7 @@ const loginStatus = document.querySelector("#admin-login-status");
 const usernameInput = document.querySelector("#admin-username");
 const passwordInput = document.querySelector("#admin-password");
 const passwordToggle = document.querySelector("#password-toggle");
+const rememberDeviceInput = document.querySelector("#admin-remember-device");
 
 const totalMetric = document.querySelector("#metric-total");
 const todayMetric = document.querySelector("#metric-today");
@@ -38,11 +39,12 @@ const adminTabs = Array.from(document.querySelectorAll("[data-admin-tab]"));
 const adminPanels = Array.from(document.querySelectorAll("[data-admin-panel]"));
 
 const AUTH_STORAGE_KEY = "adminAuthToken";
+const REMEMBER_DEVICE_KEY = "adminRememberDevice";
 const CHAT_STORAGE_KEY = "adminSelectedConversationId";
 const TAB_STORAGE_KEY = "adminSelectedTab";
 const REFRESH_INTERVAL = 2500;
 
-let authToken = sessionStorage.getItem(AUTH_STORAGE_KEY) || "";
+let authToken = sessionStorage.getItem(AUTH_STORAGE_KEY) || localStorage.getItem(AUTH_STORAGE_KEY) || "";
 let refreshHandle = null;
 let selectedConversationId = sessionStorage.getItem(CHAT_STORAGE_KEY) || "";
 let activeAdminTab = sessionStorage.getItem(TAB_STORAGE_KEY) || "overview";
@@ -50,6 +52,39 @@ let allConversations = [];
 let notificationAudioContext = null;
 let conversationSnapshot = new Map();
 let hasConversationSnapshot = false;
+
+function persistRememberDevicePreference(shouldRemember) {
+  localStorage.setItem(REMEMBER_DEVICE_KEY, shouldRemember ? "true" : "false");
+}
+
+function persistAuthToken(token, shouldRemember = false) {
+  if (!token) {
+    return;
+  }
+
+  sessionStorage.setItem(AUTH_STORAGE_KEY, token);
+  if (shouldRemember) {
+    localStorage.setItem(AUTH_STORAGE_KEY, token);
+  } else {
+    localStorage.removeItem(AUTH_STORAGE_KEY);
+  }
+  persistRememberDevicePreference(shouldRemember);
+}
+
+function clearPersistedAuthToken() {
+  sessionStorage.removeItem(AUTH_STORAGE_KEY);
+  localStorage.removeItem(AUTH_STORAGE_KEY);
+}
+
+const rememberedDevicePreference =
+  localStorage.getItem(REMEMBER_DEVICE_KEY) === "true" || Boolean(localStorage.getItem(AUTH_STORAGE_KEY));
+
+if (rememberDeviceInput) {
+  rememberDeviceInput.checked = rememberedDevicePreference;
+  rememberDeviceInput.addEventListener("change", () => {
+    persistRememberDevicePreference(Boolean(rememberDeviceInput.checked));
+  });
+}
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -425,12 +460,21 @@ async function fetchJson(path, options = {}) {
 }
 
 function handleAuthFailure(error) {
+  const isUnauthorized = error?.status === 401;
+
+  if (!isUnauthorized) {
+    setDashboardVisibility(Boolean(authToken));
+    setLoginStatus("");
+    setChatStatus("การเชื่อมต่อสะดุดชั่วคราว ระบบจะลองเชื่อมต่อให้อัตโนมัติ", "is-error");
+    return;
+  }
+
   if (refreshHandle) {
     window.clearInterval(refreshHandle);
     refreshHandle = null;
   }
 
-  sessionStorage.removeItem(AUTH_STORAGE_KEY);
+  clearPersistedAuthToken();
   authToken = "";
   setDashboardVisibility(false);
   setReplyState(false);
@@ -698,23 +742,25 @@ async function startDashboard() {
     return;
   }
 
+  setDashboardVisibility(true);
+  setAdminTab(activeAdminTab);
+  setLoginStatus("");
+
+  if (refreshHandle) {
+    window.clearInterval(refreshHandle);
+  }
+
+  refreshHandle = window.setInterval(async () => {
+    try {
+      await loadDashboard();
+    } catch (error) {
+      handleAuthFailure(error);
+    }
+  }, REFRESH_INTERVAL);
+
   try {
     await loadDashboard();
-    setDashboardVisibility(true);
-    setLoginStatus("");
-    setAdminTab(activeAdminTab);
-
-    if (refreshHandle) {
-      window.clearInterval(refreshHandle);
-    }
-
-    refreshHandle = window.setInterval(async () => {
-      try {
-        await loadDashboard();
-      } catch (error) {
-        handleAuthFailure(error);
-      }
-    }, REFRESH_INTERVAL);
+    setChatStatus("");
   } catch (error) {
     handleAuthFailure(error);
   }
@@ -732,10 +778,10 @@ if (loginForm) {
     try {
       await loginRequest(username, password);
       authToken = btoa(`${username}:${password}`);
-      sessionStorage.setItem(AUTH_STORAGE_KEY, authToken);
+      persistAuthToken(authToken, Boolean(rememberDeviceInput?.checked));
       await startDashboard();
     } catch (error) {
-      sessionStorage.removeItem(AUTH_STORAGE_KEY);
+      clearPersistedAuthToken();
       authToken = "";
       setDashboardVisibility(false);
       setLoginStatus(
