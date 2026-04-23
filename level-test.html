@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="th">
 <head>
   <meta charset="UTF-8">
@@ -24,13 +24,43 @@
     rel="stylesheet"
   >
   <link rel="stylesheet" href="styles.css">
+  <style>
+    body.level-test-page:not(.subject-test-page) .site-header {
+      background: linear-gradient(180deg, rgba(8, 13, 23, 0.98), rgba(12, 18, 30, 0.96)) !important;
+      border-bottom: 1px solid rgba(88, 119, 164, 0.22) !important;
+      box-shadow: 0 18px 42px rgba(4, 10, 18, 0.28) !important;
+    }
+
+    body.level-test-page:not(.subject-test-page) .brand-text strong,
+    body.level-test-page:not(.subject-test-page) .brand-text small,
+    body.level-test-page:not(.subject-test-page) .site-menu a,
+    body.level-test-page:not(.subject-test-page) .menu-toggle {
+      color: #f7fbff !important;
+    }
+
+    body.level-test-page:not(.subject-test-page) .site-menu a:not(.nav-cta) {
+      opacity: 0.88;
+    }
+
+    body.level-test-page:not(.subject-test-page) .nav-cta {
+      background: linear-gradient(135deg, #ff8460, #ffb357) !important;
+      border-color: rgba(255, 206, 153, 0.36) !important;
+      color: #ffffff !important;
+      box-shadow: 0 14px 28px rgba(255, 129, 84, 0.24) !important;
+    }
+
+    body.level-test-page:not(.subject-test-page) .language-switch {
+      background: rgba(255, 255, 255, 0.06) !important;
+      border-color: rgba(255, 255, 255, 0.12) !important;
+    }
+  </style>
 </head>
 <body class="level-test-page">
   <header class="site-header">
     <div class="container nav-bar">
       <a class="brand" href="/index.html#top" aria-label="สถาบันกวดวิชา IQON - ไอคิวออน">
         <span class="brand-mark">
-          <img src="/image/icon.jpg?v=20260423" alt="โลโก้ IQON">
+          <img src="image/icon.jpg?v=20260423" alt="โลโก้ IQON">
         </span>
         <span class="brand-text">
           <strong>IQON</strong>
@@ -57,7 +87,7 @@
             <span class="lang-code">EN</span>
           </button>
         </div>
-        <a class="nav-cta" href="/level-test.html" data-i18n="book_consultation">Level Test</a>
+        <a class="nav-cta" href="/level-test.html" data-i18n="book_consultation">แบบทดสอบ level</a>
       </nav>
     </div>
   </header>
@@ -168,3 +198,4 @@
   <script src="script.js"></script>
 </body>
 </html>
+

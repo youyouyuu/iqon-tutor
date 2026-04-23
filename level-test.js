@@ -9,7 +9,20 @@ const levelQuizProgressHint = document.querySelector("#level-quiz-progress-hint"
 const levelTestStartButtons = document.querySelectorAll("[data-level-test-start]");
 const levelTestIntro = document.querySelector("[data-level-test-intro]");
 const levelTestPanel = document.querySelector("[data-level-test-panel]");
+
 let levelTestPrep = document.querySelector("[data-level-test-prep]");
+let levelTestAuthenticatedUser = null;
+let levelTestAuthModal = null;
+let levelTestAuthForm = null;
+let levelTestAuthStatus = null;
+let levelTestAuthNameField = null;
+let levelTestAuthNameInput = null;
+let levelTestAuthEmailInput = null;
+let levelTestAuthPasswordInput = null;
+let levelTestAuthSubmit = null;
+let levelTestAuthTabs = [];
+let levelTestAuthMode = "login";
+let pendingLevelTestResult = null;
 
 const getSubjectFromHash = () => {
   const subjectByHash = {
@@ -32,7 +45,6 @@ const getQuizMessages = () => {
     prev: isEnglish ? "Previous" : "ย้อนกลับ",
     finish: isEnglish ? "See my level" : "ดูระดับของฉัน",
     unanswered: isEnglish ? "Please choose an answer first." : "กรุณาเลือกคำตอบก่อน",
-    prepTitle: isEnglish ? "Let's begin with the foundation questions first." : "มาเริ่มจากคำถามระดับพื้นฐานกันก่อน",
     prepButton: isEnglish ? "Continue" : "ดำเนินการต่อ",
     resultTitle: isEnglish ? "Your estimated level" : "ระดับที่เหมาะกับคุณตอนนี้",
     restart: isEnglish ? "Try again" : "ทำแบบทดสอบใหม่",
@@ -72,7 +84,256 @@ const getQuizMessages = () => {
       ? "Approximate level C1: you already have strong control and can focus on advanced accuracy and fluency."
       : "ระดับโดยประมาณ C1: มีพื้นฐานค่อนข้างแข็งแรงแล้ว ควรเน้นความแม่นยำและความลื่นไหลในระดับสูง",
     scoreLabel: isEnglish ? "Score" : "คะแนน",
+    authTitle: isEnglish ? "Sign in before seeing your result" : "ล็อกอินก่อนดูผลแบบทดสอบ",
+    authCopy: isEnglish
+      ? "Sign in or create an account so we can save your test result and connect it to your profile."
+      : "เข้าสู่ระบบหรือสมัครสมาชิกก่อน เพื่อบันทึกผลแบบทดสอบและผูกผลกับโปรไฟล์ของคุณ",
+    authLoginTab: isEnglish ? "Sign In" : "เข้าสู่ระบบ",
+    authRegisterTab: isEnglish ? "Create Account" : "สมัครใหม่",
+    authNameLabel: isEnglish ? "Display name" : "ชื่อที่ใช้ติดต่อ",
+    authEmailLabel: isEnglish ? "Email" : "อีเมล",
+    authPasswordLabel: isEnglish ? "Password" : "รหัสผ่าน",
+    authNamePlaceholder: isEnglish ? "Your name" : "เช่น น้องมินต์",
+    authEmailPlaceholder: "name@email.com",
+    authPasswordPlaceholder: isEnglish ? "At least 8 characters" : "อย่างน้อย 8 ตัวอักษร",
+    authLoginSubmit: isEnglish ? "Sign in to view result" : "เข้าสู่ระบบเพื่อดูผล",
+    authRegisterSubmit: isEnglish ? "Create account and view result" : "สมัครสมาชิกและดูผล",
+    authCancel: isEnglish ? "Back to test" : "กลับไปทำข้อสอบ",
+    authRequired: isEnglish ? "Please sign in before viewing your result." : "กรุณาล็อกอินก่อนดูผลแบบทดสอบ",
+    authSending: isEnglish ? "Checking your account..." : "กำลังตรวจสอบข้อมูล...",
+    authRequiredName: isEnglish ? "Please enter your name" : "กรุณากรอกชื่อให้ครบถ้วน",
+    authRequiredEmail: isEnglish ? "Please enter a valid email" : "กรุณากรอกอีเมลให้ถูกต้อง",
+    authRequiredPassword: isEnglish ? "Password must be at least 8 characters" : "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร",
+    authLoginFailed: isEnglish ? "Incorrect email or password" : "อีเมลหรือรหัสผ่านไม่ถูกต้อง",
+    authRegisterFailed: isEnglish ? "Could not create your account right now" : "ยังไม่สามารถสมัครสมาชิกได้ในขณะนี้",
   };
+};
+
+const setLevelTestAuthStatus = (message = "", variant = "") => {
+  if (!levelTestAuthStatus) {
+    return;
+  }
+
+  levelTestAuthStatus.textContent = message;
+  levelTestAuthStatus.className = variant
+    ? `level-test-auth-status ${variant}`
+    : "level-test-auth-status";
+};
+
+const setLevelTestAuthMode = (mode = "login") => {
+  const messages = getQuizMessages();
+  levelTestAuthMode = mode === "register" ? "register" : "login";
+
+  levelTestAuthTabs.forEach((button) => {
+    const isActive = button.dataset.authMode === levelTestAuthMode;
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-pressed", String(isActive));
+  });
+
+  if (levelTestAuthNameField) {
+    levelTestAuthNameField.hidden = levelTestAuthMode !== "register";
+  }
+
+  if (levelTestAuthSubmit) {
+    levelTestAuthSubmit.textContent =
+      levelTestAuthMode === "register" ? messages.authRegisterSubmit : messages.authLoginSubmit;
+    levelTestAuthSubmit.disabled = false;
+  }
+
+  setLevelTestAuthStatus(messages.authRequired, "");
+};
+
+const closeLevelTestAuthModal = () => {
+  levelTestAuthModal?.classList.add("hidden");
+  document.body.classList.remove("modal-open");
+};
+
+const openLevelTestAuthModal = () => {
+  ensureLevelTestAuthModal();
+  if (!levelTestAuthModal) {
+    return;
+  }
+
+  levelTestAuthModal.classList.remove("hidden");
+  document.body.classList.add("modal-open");
+  setLevelTestAuthMode(levelTestAuthMode);
+
+  if (levelTestAuthMode === "register") {
+    levelTestAuthNameInput?.focus();
+    return;
+  }
+
+  levelTestAuthEmailInput?.focus();
+};
+
+const ensureLevelTestAuthModal = () => {
+  if (levelTestAuthModal) {
+    return levelTestAuthModal;
+  }
+
+  const messages = getQuizMessages();
+  const wrapper = document.createElement("div");
+  wrapper.className = "level-test-auth-backdrop hidden";
+  wrapper.innerHTML = `
+    <div class="level-test-auth-dialog" role="dialog" aria-modal="true" aria-labelledby="level-test-auth-title">
+      <div class="level-test-auth-tabs" role="tablist" aria-label="Level test authentication">
+        <button type="button" class="level-test-auth-tab is-active" data-auth-mode="login">${messages.authLoginTab}</button>
+        <button type="button" class="level-test-auth-tab" data-auth-mode="register">${messages.authRegisterTab}</button>
+      </div>
+      <div class="level-test-auth-copy">
+        <h2 id="level-test-auth-title">${messages.authTitle}</h2>
+        <p>${messages.authCopy}</p>
+      </div>
+      <form class="level-test-auth-form" novalidate>
+        <label class="level-test-auth-field" data-level-test-auth-name-field hidden>
+          <span>${messages.authNameLabel}</span>
+          <input type="text" name="full_name" autocomplete="name" placeholder="${messages.authNamePlaceholder}">
+        </label>
+        <label class="level-test-auth-field">
+          <span>${messages.authEmailLabel}</span>
+          <input type="email" name="email" autocomplete="email" placeholder="${messages.authEmailPlaceholder}">
+        </label>
+        <label class="level-test-auth-field">
+          <span>${messages.authPasswordLabel}</span>
+          <input type="password" name="password" autocomplete="current-password" placeholder="${messages.authPasswordPlaceholder}">
+        </label>
+        <div class="level-test-auth-actions">
+          <button type="submit" class="button button-primary level-test-auth-submit">${messages.authLoginSubmit}</button>
+          <button type="button" class="button button-secondary level-test-auth-cancel">${messages.authCancel}</button>
+        </div>
+      </form>
+      <p class="level-test-auth-status"></p>
+    </div>
+  `;
+
+  document.body.appendChild(wrapper);
+  levelTestAuthModal = wrapper;
+  levelTestAuthForm = wrapper.querySelector(".level-test-auth-form");
+  levelTestAuthStatus = wrapper.querySelector(".level-test-auth-status");
+  levelTestAuthNameField = wrapper.querySelector("[data-level-test-auth-name-field]");
+  levelTestAuthNameInput = wrapper.querySelector('input[name="full_name"]');
+  levelTestAuthEmailInput = wrapper.querySelector('input[name="email"]');
+  levelTestAuthPasswordInput = wrapper.querySelector('input[name="password"]');
+  levelTestAuthSubmit = wrapper.querySelector(".level-test-auth-submit");
+  levelTestAuthTabs = Array.from(wrapper.querySelectorAll("[data-auth-mode]"));
+
+  levelTestAuthTabs.forEach((button) => {
+    button.addEventListener("click", () => {
+      setLevelTestAuthMode(button.dataset.authMode || "login");
+    });
+  });
+
+  wrapper.querySelector(".level-test-auth-cancel")?.addEventListener("click", () => {
+    closeLevelTestAuthModal();
+  });
+
+  wrapper.addEventListener("click", (event) => {
+    if (event.target === wrapper) {
+      closeLevelTestAuthModal();
+    }
+  });
+
+  levelTestAuthForm?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const formMessages = getQuizMessages();
+    const fullName = String(levelTestAuthNameInput?.value || "").trim();
+    const email = String(levelTestAuthEmailInput?.value || "").trim();
+    const password = String(levelTestAuthPasswordInput?.value || "");
+
+    if (levelTestAuthMode === "register" && fullName.length < 2) {
+      setLevelTestAuthStatus(formMessages.authRequiredName, "is-error");
+      levelTestAuthNameInput?.focus();
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setLevelTestAuthStatus(formMessages.authRequiredEmail, "is-error");
+      levelTestAuthEmailInput?.focus();
+      return;
+    }
+
+    if (password.length < 8) {
+      setLevelTestAuthStatus(formMessages.authRequiredPassword, "is-error");
+      levelTestAuthPasswordInput?.focus();
+      return;
+    }
+
+    setLevelTestAuthStatus(formMessages.authSending, "");
+    if (levelTestAuthSubmit) {
+      levelTestAuthSubmit.disabled = true;
+    }
+
+    try {
+      const endpoint = levelTestAuthMode === "register" ? "/api/auth/register" : "/api/auth/login";
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          full_name: fullName,
+          email,
+          password,
+        }),
+      });
+
+      const payload = await response.json();
+      if (!response.ok || !payload.ok) {
+        throw new Error(
+          payload.error ||
+            (levelTestAuthMode === "register"
+              ? formMessages.authRegisterFailed
+              : formMessages.authLoginFailed),
+        );
+      }
+
+      levelTestAuthenticatedUser = payload.user || null;
+      levelTestAuthForm?.reset();
+      closeLevelTestAuthModal();
+
+      const pendingAction = pendingLevelTestResult;
+      pendingLevelTestResult = null;
+      if (typeof pendingAction === "function") {
+        pendingAction();
+      }
+    } catch (error) {
+      setLevelTestAuthStatus(
+        error instanceof Error && error.message
+          ? error.message
+          : levelTestAuthMode === "register"
+            ? formMessages.authRegisterFailed
+            : formMessages.authLoginFailed,
+        "is-error",
+      );
+    } finally {
+      if (levelTestAuthSubmit) {
+        levelTestAuthSubmit.disabled = false;
+      }
+    }
+  });
+
+  return levelTestAuthModal;
+};
+
+const syncLevelTestAuthentication = async () => {
+  try {
+    const response = await fetch("/api/auth/me", {
+      headers: {
+        Accept: "application/json",
+      },
+    });
+    const payload = await response.json();
+    if (response.ok && payload.ok && payload.authenticated) {
+      levelTestAuthenticatedUser = payload.user || null;
+      return;
+    }
+  } catch (error) {
+    // Ignore auth check errors and treat as logged out.
+  }
+
+  levelTestAuthenticatedUser = null;
 };
 
 const ensurePrepScreen = () => {
@@ -198,23 +459,14 @@ const getResultContent = (score, total, messages) => {
   }
 
   if (score >= total) {
-    return {
-      level: messages.advancedLevel,
-      advice: messages.advancedAdvice,
-    };
+    return { level: messages.advancedLevel, advice: messages.advancedAdvice };
   }
 
   if (score >= Math.max(2, total - 1)) {
-    return {
-      level: messages.intermediateLevel,
-      advice: messages.intermediateAdvice,
-    };
+    return { level: messages.intermediateLevel, advice: messages.intermediateAdvice };
   }
 
-  return {
-    level: messages.starterLevel,
-    advice: messages.starterAdvice,
-  };
+  return { level: messages.starterLevel, advice: messages.starterAdvice };
 };
 
 const buildResultCard = ({ subjectLabel, score, total }) => {
@@ -319,7 +571,7 @@ const setupSubjectQuizFlow = (form) => {
     updateActiveQuizProgress();
   });
 
-  form.addEventListener("submit", (event) => {
+  form.addEventListener("submit", async (event) => {
     event.preventDefault();
 
     const currentQuestion = questions[currentIndex];
@@ -346,6 +598,15 @@ const setupSubjectQuizFlow = (form) => {
     const score = selectedAnswers.reduce((total, value, index) => {
       return total + (value === expectedAnswers[index] ? 1 : 0);
     }, 0);
+
+    await syncLevelTestAuthentication();
+    if (!levelTestAuthenticatedUser) {
+      pendingLevelTestResult = () => showResultView(score, expectedAnswers.length);
+      openLevelTestAuthModal();
+      result.textContent = messages.authRequired;
+      result.className = "level-quiz-result is-error";
+      return;
+    }
 
     showResultView(score, expectedAnswers.length);
   });
@@ -391,3 +652,6 @@ levelTestStartButtons.forEach((button) => {
     prepScreen?.scrollIntoView({ behavior: "smooth", block: "start" });
   });
 });
+
+ensureLevelTestAuthModal();
+void syncLevelTestAuthentication();

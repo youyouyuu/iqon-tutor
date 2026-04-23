@@ -191,7 +191,7 @@ const translations = {
     hero_subtitle_home: "เรียนอย่างมีเป้าหมาย พร้อมทีมสอนที่เข้าใจผู้เรียนจริง ทั้งปรับพื้นฐาน เพิ่มเนื้อหา และเตรียมสอบอย่างเป็นระบบ",
     hero_cta_contact: "ติดต่อเรา",
     hero_cta_about: "เกี่ยวกับเรา",
-    book_consultation: "Level Test",
+    book_consultation: "แบบทดสอบ level",
     ask_via_line: "สอบถามผ่าน Line",
     ask_about_courses: "สอบถามคอร์สเรียน",
     view_courses: "ดูข้อมูลคอร์สเรียน",
@@ -249,7 +249,7 @@ const translations = {
     hero_subtitle_home: "Study with a teaching team that truly understands students, from foundations and content boosting to structured exam preparation.",
     hero_cta_contact: "Contact Us",
     hero_cta_about: "About Us",
-    book_consultation: "Level Test",
+    book_consultation: "แบบทดสอบ level",
     ask_via_line: "Ask via Line",
     ask_about_courses: "Ask About Courses",
     view_courses: "View Courses",
@@ -409,6 +409,103 @@ const initializeScrollReveal = () => {
 
   revealTargets.forEach((element) => observer.observe(element));
   document.body.dataset.revealReady = "true";
+};
+
+const initializeHomeScrollMotion = () => {
+  if (!document.body.classList.contains("home-page")) {
+    return;
+  }
+
+  if (document.body.dataset.homeMotionReady === "true") {
+    return;
+  }
+
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const motionTargets = Array.from(
+    document.querySelectorAll(
+      [
+        ".news-card",
+        ".story-copy",
+        ".story-media-card",
+        ".promo-visual-stack",
+        ".promo-character-card",
+        ".promo-copy",
+        ".program-card",
+        ".approach-item",
+        ".contact-box",
+        ".contact-card",
+      ].join(", "),
+    ),
+  );
+
+  document.body.classList.add("motion-ready");
+
+  motionTargets.forEach((element, index) => {
+    element.classList.add("home-motion-item");
+    element.style.setProperty("--motion-delay", `${Math.min(index % 5, 4) * 80}ms`);
+    if (prefersReducedMotion) {
+      element.classList.add("motion-in");
+    }
+  });
+
+  if (!prefersReducedMotion && typeof IntersectionObserver !== "undefined") {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) {
+            return;
+          }
+          entry.target.classList.add("motion-in");
+          observer.unobserve(entry.target);
+        });
+      },
+      {
+        threshold: 0.16,
+        rootMargin: "0px 0px -10% 0px",
+      },
+    );
+
+    motionTargets.forEach((element) => observer.observe(element));
+  } else {
+    motionTargets.forEach((element) => element.classList.add("motion-in"));
+  }
+
+  if (!prefersReducedMotion) {
+    let ticking = false;
+
+    const updateMotion = () => {
+      const scrollY = window.scrollY || window.pageYOffset || 0;
+      const viewportHeight = Math.max(window.innerHeight || 1, 1);
+      const heroProgress = Math.min(scrollY / viewportHeight, 1);
+      const easedProgress = 1 - Math.pow(1 - heroProgress, 3);
+      const cardFloat = Math.sin(scrollY / 360) * 4;
+      const mediaFloat = cardFloat * -0.38;
+
+      document.body.style.setProperty("--home-hero-y", `${easedProgress * 34}px`);
+      document.body.style.setProperty("--home-hero-scale", `${1 - easedProgress * 0.035}`);
+      document.body.style.setProperty("--home-copy-y", `${easedProgress * -28}px`);
+      document.body.style.setProperty("--home-bridge-y", `${easedProgress * 42}px`);
+      document.body.style.setProperty("--home-card-parallax", `${cardFloat}px`);
+      document.body.style.setProperty("--home-media-parallax", `${mediaFloat}px`);
+      document.body.style.setProperty("--home-orb-x", `${easedProgress * -9}px`);
+      document.body.style.setProperty("--home-orb-y", `${easedProgress * -14}px`);
+      ticking = false;
+    };
+
+    const requestMotionUpdate = () => {
+      if (ticking) {
+        return;
+      }
+      ticking = true;
+      window.requestAnimationFrame(updateMotion);
+    };
+
+    updateMotion();
+    window.addEventListener("scroll", requestMotionUpdate, { passive: true });
+    window.addEventListener("resize", requestMotionUpdate);
+  }
+
+  document.body.dataset.homeMotionReady = "true";
 };
 
 const setText = (selector, value) => {
@@ -1655,6 +1752,7 @@ languageButtons.forEach((button) => {
 
 applyLanguage(getInitialLanguage());
 initializeScrollReveal();
+initializeHomeScrollMotion();
 
 consentInlineToggles.forEach((toggle) => {
   toggle.addEventListener("click", () => {

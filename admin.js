@@ -53,6 +53,8 @@ let notificationAudioContext = null;
 let conversationSnapshot = new Map();
 let hasConversationSnapshot = false;
 
+document.body.classList.toggle("admin-login-mode", !authToken);
+
 function persistRememberDevicePreference(shouldRemember) {
   localStorage.setItem(REMEMBER_DEVICE_KEY, shouldRemember ? "true" : "false");
 }
@@ -257,6 +259,7 @@ function setChatStatus(message = "", variant = "") {
 function setDashboardVisibility(isVisible) {
   loginCard?.classList.toggle("hidden", isVisible);
   dashboard?.classList.toggle("hidden", !isVisible);
+  document.body.classList.toggle("admin-login-mode", !isVisible);
 }
 
 function setReplyState(enabled) {
@@ -320,22 +323,31 @@ function setAdminTab(tab) {
 }
 
 function getFilteredConversations() {
+  const sortByRecent = (items) =>
+    [...items].sort((left, right) => {
+      const leftTime = new Date(left?.updated_at || left?.created_at || 0).getTime();
+      const rightTime = new Date(right?.updated_at || right?.created_at || 0).getTime();
+      return rightTime - leftTime;
+    });
+
   const keyword = String(chatSearchInput?.value || "").trim().toLowerCase();
   if (!keyword) {
-    return allConversations;
+    return sortByRecent(allConversations);
   }
 
-  return allConversations.filter((conversation) => {
-    const haystacks = [
-      conversation.user_name,
-      conversation.user_email,
-      conversation.latest_message,
-      formatPageLabel(conversation.source_page),
-      conversation.id,
-    ];
+  return sortByRecent(
+    allConversations.filter((conversation) => {
+      const haystacks = [
+        conversation.user_name,
+        conversation.user_email,
+        conversation.latest_message,
+        formatPageLabel(conversation.source_page),
+        conversation.id,
+      ];
 
-    return haystacks.some((value) => String(value || "").toLowerCase().includes(keyword));
-  });
+      return haystacks.some((value) => String(value || "").toLowerCase().includes(keyword));
+    }),
+  );
 }
 
 function renderChatInfoPanel(conversation = null, messages = []) {
@@ -839,6 +851,98 @@ function renderChatMessages(conversation, messages) {
 
   chatThread.scrollTop = chatThread.scrollHeight;
   setReplyState(true);
+}
+
+function getFilteredConversations() {
+  const sortByRecent = (items) =>
+    [...items].sort((left, right) => {
+      const leftTime = new Date(left?.updated_at || left?.created_at || 0).getTime();
+      const rightTime = new Date(right?.updated_at || right?.created_at || 0).getTime();
+      return rightTime - leftTime;
+    });
+
+  const keyword = String(chatSearchInput?.value || "").trim().toLowerCase();
+  if (!keyword) {
+    return sortByRecent(allConversations);
+  }
+
+  return sortByRecent(
+    allConversations.filter((conversation) => {
+      const haystacks = [
+        conversation.user_name,
+        conversation.user_email,
+        conversation.latest_message,
+        formatPageLabel(conversation.source_page),
+        conversation.id,
+      ];
+
+      return haystacks.some((value) => String(value || "").toLowerCase().includes(keyword));
+    }),
+  );
+}
+
+function renderConversations(conversations) {
+  if (!conversationList) {
+    return;
+  }
+
+  updateConversationBadge(conversations.length);
+
+  if (!conversations.length) {
+    const emptyLabel = allConversations.length ? "ไม่พบห้องแชตตามคำค้นหา" : "ยังไม่มีห้องแชต";
+    conversationList.innerHTML = `<div class="empty-state">${escapeHtml(emptyLabel)}</div>`;
+    renderEmptyChatState(emptyLabel);
+    if (!allConversations.length) {
+      persistSelectedConversation("");
+    }
+    return;
+  }
+
+  const visibleConversationIds = conversations.map((conversation) => conversation.id);
+
+  if (!selectedConversationId || !visibleConversationIds.includes(selectedConversationId)) {
+    persistSelectedConversation(conversations[0].id);
+  }
+
+  conversationList.innerHTML = conversations
+    .map((conversation) => {
+      const isActive = conversation.id === selectedConversationId;
+      const title = getConversationDisplayTitle(conversation);
+      const avatar = getConversationAvatarLabel(conversation);
+
+      return `
+        <button
+          class="admin-chat-conversation admin-chat-conversation-simple${isActive ? " is-active" : ""}"
+          type="button"
+          data-conversation-id="${escapeHtml(conversation.id)}"
+        >
+          <div class="admin-chat-conversation-media">
+            <div class="admin-chat-conversation-avatar" aria-hidden="true">${escapeHtml(avatar)}</div>
+            <div class="admin-chat-conversation-copy">
+              <div class="admin-chat-conversation-mainline">
+                <div class="admin-chat-conversation-title">${escapeHtml(title)}</div>
+                <span class="admin-chat-badge">${escapeHtml(String(conversation.message_count || 0))}</span>
+              </div>
+            </div>
+          </div>
+        </button>
+      `;
+    })
+    .join("");
+
+  conversationList.querySelectorAll("[data-conversation-id]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const conversationId = button.dataset.conversationId || "";
+      if (!conversationId || conversationId === selectedConversationId) {
+        return;
+      }
+
+      persistSelectedConversation(conversationId);
+      renderConversations(getFilteredConversations());
+      setChatStatus("");
+      await loadSelectedConversation();
+    });
+  });
 }
 
 async function loadSelectedConversation() {
