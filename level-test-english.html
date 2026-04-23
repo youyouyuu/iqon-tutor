@@ -14,7 +14,7 @@
   <header class="site-header">
     <div class="container nav-bar">
       <a class="brand" href="/index.html#top" aria-label="สถาบันกวดวิชา IQON - ไอคิวออน">
-        <span class="brand-mark"><img src="/image/icon.jpg" alt="โลโก้ IQON"></span>
+        <span class="brand-mark"><img src="/image/icon.jpg?v=20260423" alt="โลโก้ IQON"></span>
         <span class="brand-text"><strong>IQON</strong><small data-i18n="brand_tagline">สถาบันกวดวิชาไอคิวออน</small></span>
       </a>
       <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-menu" data-i18n="menu">เมนู</button>
@@ -35,11 +35,11 @@
         <div class="subject-test-intro-copy">
           <span class="subject-test-intro-kicker">English Level Test</span>
           <h1>ยินดีต้อนรับสู่แบบทดสอบวัดระดับภาษาอังกฤษ</h1>
-          <p>หน้านี้เป็นหน้าเริ่มต้นของแบบทดสอบวิชาภาษาอังกฤษโดยเฉพาะ ใช้สำหรับเช็กพื้นฐานคำศัพท์ ไวยากรณ์ และการเข้าใจความหมายเบื้องต้นก่อนเริ่มเรียนกับ IQON</p>
+          <p>แบบทดสอบนี้ออกแบบมาเพื่อเช็กพื้นฐาน grammar, vocabulary, sentence structure และการเข้าใจความหมายของภาษาอังกฤษแบบรวม เพื่อช่วยให้ IQON ประเมินได้ว่าผู้เรียนควรเริ่มจากระดับไหน</p>
           <ul class="subject-test-intro-rules">
             <li>ตอบคำถามให้ครบทุกข้อก่อนตรวจผล</li>
             <li>ถ้ายังไม่แน่ใจ ให้เลือกคำตอบที่ใกล้ที่สุดกับความเข้าใจของผู้เรียน</li>
-            <li>เมื่อเริ่มแล้ว ระบบจะเปิดข้อสอบของวิชานี้ในหน้านี้ทันที</li>
+            <li>แบบทดสอบนี้มี 12 ข้อ ไล่ระดับจากพื้นฐานไปถึงระดับต่อยอด</li>
           </ul>
           <div class="subject-test-intro-actions">
             <button class="button button-primary subject-test-start-button" type="button" data-level-test-start="#subject-quiz-form">เริ่มกันเลย!</button>
@@ -48,12 +48,13 @@
         </div>
       </div>
     </section>
+
     <section class="level-test-hero">
       <div class="container level-test-hero-grid">
         <div class="level-test-hero-copy">
           <p class="eyebrow">English Level Test</p>
           <h1>แบบทดสอบวัดระดับภาษาอังกฤษ</h1>
-          <p class="level-test-hero-text">เช็กพื้นฐานเรื่องคำศัพท์ โครงสร้างประโยค และความเข้าใจความหมายเบื้องต้นก่อนเริ่มเรียนภาษาอังกฤษ</p>
+          <p class="level-test-hero-text">เช็ก grammar, vocabulary, reading sense และ sentence patterns ผ่านคำถาม 12 ข้อ เพื่อประเมินความพร้อมก่อนเริ่มเรียนภาษาอังกฤษ</p>
           <div class="level-test-hero-actions">
             <a class="button button-primary" href="#subject-quiz-form">เริ่มทำข้อสอบ</a>
             <a class="button button-secondary" href="/level-test.html">กลับไปเลือกวิชา</a>
@@ -62,54 +63,141 @@
         <aside class="level-test-summary-card">
           <span class="level-test-summary-tag">English</span>
           <h2>หน้าเฉพาะของวิชาภาษาอังกฤษ</h2>
-          <p>เหมาะสำหรับผู้เรียนที่ต้องการเช็ก grammar และคำศัพท์พื้นฐานแบบรวดเร็วในหน้าเฉพาะของตัวเอง</p>
+          <p>เหมาะสำหรับผู้เรียนที่ต้องการเช็กระดับภาษาอังกฤษแบบรอบด้าน ก่อนเลือกคอร์สปูพื้นฐาน คอร์สสอบ หรือคอร์สสื่อสาร</p>
           <ul class="level-test-summary-list">
-            <li>คำถามพื้นฐาน 3 ข้อ</li>
-            <li>เน้นความเข้าใจภาษาอังกฤษเบื้องต้น</li>
-            <li>ตรวจผลได้ทันทีหลังตอบครบ</li>
+            <li>คำถาม 12 ข้อ ครอบคลุมตั้งแต่ A1 ถึง C1</li>
+            <li>เน้น grammar, vocabulary และ use of English</li>
+            <li>สรุปผลเป็น level ทันทีหลังตอบครบ</li>
           </ul>
         </aside>
       </div>
     </section>
+
     <section class="section level-quiz-section-wrap is-hidden-before-start" data-level-test-panel>
       <div class="container level-quiz-shell">
         <aside class="level-quiz-sidebar">
           <p class="eyebrow">Progress</p>
           <h2>ติดตามการทำข้อสอบของวิชานี้ได้ทันที</h2>
-          <p class="level-quiz-sidebar-copy">ตอบให้ครบทั้ง 3 ข้อ แล้วตรวจคำตอบเพื่อดูแนวทางคอร์สที่เหมาะกับผู้เรียน</p>
+          <p class="level-quiz-sidebar-copy">ตอบให้ครบทั้ง 12 ข้อ แล้วระบบจะสรุประดับเป็น A1, A2, B1, B2 หรือ C1 ให้ทันที</p>
           <div class="level-quiz-progress-card">
             <span class="level-quiz-progress-label" id="level-quiz-current-subject">ภาษาอังกฤษ</span>
-            <strong id="level-quiz-progress-count">ตอบแล้ว 0/3 ข้อ</strong>
+            <strong id="level-quiz-progress-count">ตอบแล้ว 0/12 ข้อ</strong>
             <div class="level-quiz-progress-bar" aria-hidden="true"><span id="level-quiz-progress-fill"></span></div>
             <small id="level-quiz-progress-hint">เลือกคำตอบให้ครบก่อนตรวจผล ระบบจะสรุประดับให้ทันที</small>
           </div>
         </aside>
+
         <div class="level-quiz-main">
           <article class="level-quiz-card is-active" id="subject-quiz-form" data-subject-label="ภาษาอังกฤษ">
             <div class="level-quiz-head">
-              <div><p class="eyebrow">English</p><h2>แบบทดสอบวัดระดับภาษาอังกฤษ</h2></div>
-              <div class="level-quiz-head-meta"><span class="level-quiz-chip">3 ข้อ</span><span class="level-quiz-chip subtle">Grammar</span></div>
+              <div>
+                <p class="eyebrow">English</p>
+                <h2>แบบทดสอบวัดระดับภาษาอังกฤษ</h2>
+              </div>
+              <div class="level-quiz-head-meta">
+                <span class="level-quiz-chip">12 ข้อ</span>
+                <span class="level-quiz-chip subtle">Grammar + Vocabulary</span>
+              </div>
             </div>
+
             <form class="level-quiz-form" data-level-quiz>
               <fieldset class="level-quiz-question">
-                <legend>1. Choose the correct word: She ____ to school every day.</legend>
+                <legend>1. Choose the correct sentence: She ____ to work by bus every day.</legend>
                 <label><input type="radio" name="english-q1" value="a"> go</label>
                 <label><input type="radio" name="english-q1" value="b"> goes</label>
                 <label><input type="radio" name="english-q1" value="c"> going</label>
+                <label><input type="radio" name="english-q1" value="d"> gone</label>
               </fieldset>
+
               <fieldset class="level-quiz-question">
-                <legend>2. Which word is a color?</legend>
-                <label><input type="radio" name="english-q2" value="a"> Blue</label>
-                <label><input type="radio" name="english-q2" value="b"> Table</label>
-                <label><input type="radio" name="english-q2" value="c"> Run</label>
+                <legend>2. We have lived here ____ 2021.</legend>
+                <label><input type="radio" name="english-q2" value="a"> since</label>
+                <label><input type="radio" name="english-q2" value="b"> for</label>
+                <label><input type="radio" name="english-q2" value="c"> from</label>
+                <label><input type="radio" name="english-q2" value="d"> during</label>
               </fieldset>
+
               <fieldset class="level-quiz-question">
-                <legend>3. "I am happy" means...</legend>
-                <label><input type="radio" name="english-q3" value="a"> ฉันง่วง</label>
-                <label><input type="radio" name="english-q3" value="b"> ฉันเสียใจ</label>
-                <label><input type="radio" name="english-q3" value="c"> ฉันมีความสุข</label>
+                <legend>3. If it ____ tomorrow, we will stay home.</legend>
+                <label><input type="radio" name="english-q3" value="a"> rain</label>
+                <label><input type="radio" name="english-q3" value="b"> rains</label>
+                <label><input type="radio" name="english-q3" value="c"> is raining</label>
+                <label><input type="radio" name="english-q3" value="d"> rained</label>
               </fieldset>
-              <input type="hidden" name="answers" value="b,a,c">
+
+              <fieldset class="level-quiz-question">
+                <legend>4. I can't find my keys. I ____ them in the car.</legend>
+                <label><input type="radio" name="english-q4" value="a"> might leave</label>
+                <label><input type="radio" name="english-q4" value="b"> might have left</label>
+                <label><input type="radio" name="english-q4" value="c"> must leaving</label>
+                <label><input type="radio" name="english-q4" value="d"> may left</label>
+              </fieldset>
+
+              <fieldset class="level-quiz-question">
+                <legend>5. This book is ____ than the one I read last week.</legend>
+                <label><input type="radio" name="english-q5" value="a"> interest</label>
+                <label><input type="radio" name="english-q5" value="b"> more interesting</label>
+                <label><input type="radio" name="english-q5" value="c"> most interesting</label>
+                <label><input type="radio" name="english-q5" value="d"> interested</label>
+              </fieldset>
+
+              <fieldset class="level-quiz-question">
+                <legend>6. By the time the teacher arrived, the students ____.</legend>
+                <label><input type="radio" name="english-q6" value="a"> start</label>
+                <label><input type="radio" name="english-q6" value="b"> had started</label>
+                <label><input type="radio" name="english-q6" value="c"> have started</label>
+                <label><input type="radio" name="english-q6" value="d"> started</label>
+              </fieldset>
+
+              <fieldset class="level-quiz-question">
+                <legend>7. Choose the most natural sentence.</legend>
+                <label><input type="radio" name="english-q7" value="a"> I look forward hear from you.</label>
+                <label><input type="radio" name="english-q7" value="b"> I am looking forward hear from you.</label>
+                <label><input type="radio" name="english-q7" value="c"> I look forward to hearing from you.</label>
+                <label><input type="radio" name="english-q7" value="d"> I looking forward to hear from you.</label>
+              </fieldset>
+
+              <fieldset class="level-quiz-question">
+                <legend>8. The movie was so ____ that everyone stayed until the end.</legend>
+                <label><input type="radio" name="english-q8" value="a"> boring</label>
+                <label><input type="radio" name="english-q8" value="b"> excited</label>
+                <label><input type="radio" name="english-q8" value="c"> engaging</label>
+                <label><input type="radio" name="english-q8" value="d"> engage</label>
+              </fieldset>
+
+              <fieldset class="level-quiz-question">
+                <legend>9. If I ____ more confident in English, I would join the debate club.</legend>
+                <label><input type="radio" name="english-q9" value="a"> am</label>
+                <label><input type="radio" name="english-q9" value="b"> were</label>
+                <label><input type="radio" name="english-q9" value="c"> have been</label>
+                <label><input type="radio" name="english-q9" value="d"> will be</label>
+              </fieldset>
+
+              <fieldset class="level-quiz-question">
+                <legend>10. She asked me where I ____ the night before.</legend>
+                <label><input type="radio" name="english-q10" value="a"> go</label>
+                <label><input type="radio" name="english-q10" value="b"> went</label>
+                <label><input type="radio" name="english-q10" value="c"> had gone</label>
+                <label><input type="radio" name="english-q10" value="d"> have gone</label>
+              </fieldset>
+
+              <fieldset class="level-quiz-question">
+                <legend>11. Hardly had we sat down when the lights ____.</legend>
+                <label><input type="radio" name="english-q11" value="a"> go out</label>
+                <label><input type="radio" name="english-q11" value="b"> went out</label>
+                <label><input type="radio" name="english-q11" value="c"> had go out</label>
+                <label><input type="radio" name="english-q11" value="d"> are going out</label>
+              </fieldset>
+
+              <fieldset class="level-quiz-question">
+                <legend>12. Choose the best response: "Could you tell me how long the course lasts?"</legend>
+                <label><input type="radio" name="english-q12" value="a"> Yes, lasts.</label>
+                <label><input type="radio" name="english-q12" value="b"> It usually runs for 12 weeks.</label>
+                <label><input type="radio" name="english-q12" value="c"> I course English.</label>
+                <label><input type="radio" name="english-q12" value="d"> For teacher.</label>
+              </fieldset>
+
+              <input type="hidden" name="answers" value="b,a,b,b,b,b,c,c,b,c,b,b">
               <div class="level-quiz-actions">
                 <button class="button button-primary" type="submit">ตรวจคำตอบ</button>
                 <a class="button button-secondary" href="/level-test.html">กลับไปเลือกวิชา</a>
@@ -121,7 +209,15 @@
       </div>
     </section>
   </main>
-  <footer class="site-footer"><div class="container footer-grid"><div><strong>สถาบันกวดวิชา IQON - ไอคิวออน</strong><p>เปิดสอนคณิตศาสตร์ วิทยาศาสตร์ อังกฤษ ฟิสิกส์ เคมี และชีวะ พร้อมคอร์สติวสอบเข้า เพิ่มเนื้อหา และปูพื้นฐาน</p></div><p>© 2026 IQON Tutor. All rights reserved.</p></div></footer>
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <strong>สถาบันกวดวิชา IQON - ไอคิวออน</strong>
+        <p>เปิดสอนคณิตศาสตร์ วิทยาศาสตร์ อังกฤษ ฟิสิกส์ เคมี และชีวะ พร้อมคอร์สติวสอบเข้า เพิ่มเนื้อหา และปูพื้นฐาน</p>
+      </div>
+      <p>© 2026 IQON Tutor. All rights reserved.</p>
+    </div>
+  </footer>
   <script src="script.js"></script>
   <script src="level-test.js"></script>
 </body>

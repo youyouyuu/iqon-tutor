@@ -42,6 +42,11 @@ const getQuizMessages = () => {
     starterLevel: isEnglish ? "Foundation" : "พื้นฐาน",
     intermediateLevel: isEnglish ? "Intermediate" : "กลาง",
     advancedLevel: isEnglish ? "Advanced" : "สูง",
+    a1Level: "A1",
+    a2Level: "A2",
+    b1Level: "B1",
+    b2Level: "B2",
+    c1Level: "C1",
     starterAdvice: isEnglish
       ? "Recommended start: focus on foundation review before moving into an intensive course."
       : "คำแนะนำ: ควรเริ่มจากคอร์สปูพื้นฐานก่อน แล้วค่อยต่อยอดไปคอร์สที่เข้มขึ้น",
@@ -51,6 +56,21 @@ const getQuizMessages = () => {
     advancedAdvice: isEnglish
       ? "Recommended start: you are ready for intensive practice, exam prep, or higher-level lessons."
       : "คำแนะนำ: พร้อมต่อยอดสู่คอร์สเข้มข้น ตะลุยโจทย์ หรือเตรียมสอบได้เลย",
+    a1Advice: isEnglish
+      ? "Approximate level A1: start with basic sentence patterns, daily vocabulary, and simple grammar."
+      : "ระดับโดยประมาณ A1: ควรเริ่มจากประโยคพื้นฐาน คำศัพท์ในชีวิตประจำวัน และ grammar ระดับเริ่มต้น",
+    a2Advice: isEnglish
+      ? "Approximate level A2: continue with common grammar, short reading, and more everyday communication."
+      : "ระดับโดยประมาณ A2: ควรต่อยอด grammar ที่ใช้บ่อย การอ่านสั้น ๆ และการสื่อสารในชีวิตประจำวัน",
+    b1Advice: isEnglish
+      ? "Approximate level B1: you can move into longer reading, structured writing, and intermediate grammar."
+      : "ระดับโดยประมาณ B1: สามารถต่อยอดสู่การอ่านยาวขึ้น การเขียนเป็นระบบ และ grammar ระดับกลาง",
+    b2Advice: isEnglish
+      ? "Approximate level B2: you are ready for intensive practice, exam-style tasks, and more complex structures."
+      : "ระดับโดยประมาณ B2: พร้อมสำหรับโจทย์เข้มขึ้น ข้อสอบแนวสอบ และโครงสร้างภาษาที่ซับซ้อนกว่าเดิม",
+    c1Advice: isEnglish
+      ? "Approximate level C1: you already have strong control and can focus on advanced accuracy and fluency."
+      : "ระดับโดยประมาณ C1: มีพื้นฐานค่อนข้างแข็งแรงแล้ว ควรเน้นความแม่นยำและความลื่นไหลในระดับสูง",
     scoreLabel: isEnglish ? "Score" : "คะแนน",
   };
 };
@@ -152,6 +172,31 @@ const updateActiveQuizProgress = () => {
 };
 
 const getResultContent = (score, total, messages) => {
+  const subjectLabel =
+    document.querySelector(".level-quiz-card[data-subject-label]")?.dataset.subjectLabel || "";
+  const isEnglishSubject =
+    subjectLabel.toLowerCase().includes("english") || subjectLabel.includes("ภาษาอังกฤษ");
+
+  if (isEnglishSubject && total >= 10) {
+    if (score >= 11) {
+      return { level: messages.c1Level, advice: messages.c1Advice };
+    }
+
+    if (score >= 9) {
+      return { level: messages.b2Level, advice: messages.b2Advice };
+    }
+
+    if (score >= 6) {
+      return { level: messages.b1Level, advice: messages.b1Advice };
+    }
+
+    if (score >= 3) {
+      return { level: messages.a2Level, advice: messages.a2Advice };
+    }
+
+    return { level: messages.a1Level, advice: messages.a1Advice };
+  }
+
   if (score >= total) {
     return {
       level: messages.advancedLevel,
