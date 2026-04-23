@@ -36,6 +36,7 @@ const lineAddFriendLink = document.querySelector("#line-add-friend-link");
 const lineMessageLink = document.querySelector("#line-message-link");
 const linePackageClosers = document.querySelectorAll("[data-line-package-close]");
 const languageButtons = document.querySelectorAll("[data-lang-option]");
+const levelTestCardLinks = document.querySelectorAll(".level-test-card .button[href]");
 
 const LINE_OA_ID = "@iqon";
 const lineAddFriendUrl = "https://lin.ee/fOA2NDf2";
@@ -1000,9 +1001,33 @@ const applyLanguage = (language) => {
     button.setAttribute("aria-pressed", String(isActive));
   });
 
-  if (window.location.pathname.includes("level-test")) {
+  const pathname = window.location.pathname;
+  const levelTestPageTitles =
+    currentLanguage === "en"
+      ? {
+          "level-test-math": "Mathematics Level Test | IQON Tutor Academy",
+          "level-test-science": "Science Level Test | IQON Tutor Academy",
+          "level-test-english": "English Level Test | IQON Tutor Academy",
+          "level-test-physics": "Physics Level Test | IQON Tutor Academy",
+          "level-test-chemistry": "Chemistry Level Test | IQON Tutor Academy",
+          "level-test-biology": "Biology Level Test | IQON Tutor Academy",
+        }
+      : {
+          "level-test-math": "แบบทดสอบคณิตศาสตร์ | สถาบันกวดวิชา IQON - ไอคิวออน",
+          "level-test-science": "แบบทดสอบวิทยาศาสตร์ | สถาบันกวดวิชา IQON - ไอคิวออน",
+          "level-test-english": "แบบทดสอบภาษาอังกฤษ | สถาบันกวดวิชา IQON - ไอคิวออน",
+          "level-test-physics": "แบบทดสอบฟิสิกส์ | สถาบันกวดวิชา IQON - ไอคิวออน",
+          "level-test-chemistry": "แบบทดสอบเคมี | สถาบันกวดวิชา IQON - ไอคิวออน",
+          "level-test-biology": "แบบทดสอบชีววิทยา | สถาบันกวดวิชา IQON - ไอคิวออน",
+        };
+
+  const matchedLevelTestPage = Object.keys(levelTestPageTitles).find((pageKey) => pathname.includes(pageKey));
+
+  if (matchedLevelTestPage) {
+    document.title = levelTestPageTitles[matchedLevelTestPage];
+  } else if (pathname.includes("level-test")) {
     document.title = translations[currentLanguage].title_level_test;
-  } else if (window.location.pathname.includes("courses")) {
+  } else if (pathname.includes("courses")) {
     document.title = translations[currentLanguage].title_courses;
   } else {
     document.title = translations[currentLanguage].title_home;
@@ -1679,6 +1704,18 @@ if (menuToggle && siteMenu) {
     }
   });
 }
+
+levelTestCardLinks.forEach((link) => {
+  link.addEventListener("click", (event) => {
+    const targetUrl = link.getAttribute("href");
+    if (!targetUrl) {
+      return;
+    }
+
+    event.preventDefault();
+    window.open(targetUrl, "_blank", "noopener,noreferrer");
+  });
+});
 
 if (storyOverlay && storyOverlayClose) {
   storyOverlayClose.addEventListener("click", () => {

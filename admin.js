@@ -305,6 +305,7 @@ function persistSelectedConversation(id) {
 function setAdminTab(tab) {
   activeAdminTab = tab === "messages" ? "messages" : "overview";
   sessionStorage.setItem(TAB_STORAGE_KEY, activeAdminTab);
+  document.body.classList.toggle("admin-messages-mode", activeAdminTab === "messages");
 
   adminTabs.forEach((button) => {
     const isActive = button.dataset.adminTab === activeAdminTab;
@@ -669,6 +670,167 @@ function renderChatMessages(conversation, messages) {
               <span>${escapeHtml(formatTime(item.created_at))}</span>
             </div>
             <div class="admin-chat-message-body">${escapeHtml(item.message)}</div>
+          </article>
+        `;
+      })
+      .join("");
+  }
+
+  chatThread.scrollTop = chatThread.scrollHeight;
+  setReplyState(true);
+}
+
+function renderConversations(conversations) {
+  if (!conversationList) {
+    return;
+  }
+
+  updateConversationBadge(conversations.length);
+
+  if (!conversations.length) {
+    const emptyLabel = allConversations.length ? "ไม่พบห้องแชตตามคำค้นหา" : "ยังไม่มีห้องแชต";
+    conversationList.innerHTML = `<div class="empty-state">${escapeHtml(emptyLabel)}</div>`;
+    renderEmptyChatState(emptyLabel);
+    if (!allConversations.length) {
+      persistSelectedConversation("");
+    }
+    return;
+  }
+
+  const visibleConversationIds = conversations.map((conversation) => conversation.id);
+
+  if (!selectedConversationId || !visibleConversationIds.includes(selectedConversationId)) {
+    persistSelectedConversation(conversations[0].id);
+  }
+
+  conversationList.innerHTML = conversations
+    .map((conversation) => {
+      const isActive = conversation.id === selectedConversationId;
+      const preview = truncateText(conversation.latest_message || "ยังไม่มีข้อความ");
+      const title = getConversationDisplayTitle(conversation);
+      const avatar = getConversationAvatarLabel(conversation);
+      const metaParts = [formatDateTime(conversation.updated_at)];
+
+      if (conversation.user_email) {
+        metaParts.unshift(conversation.user_email);
+      }
+
+      const senderText =
+        conversation.latest_sender === "admin"
+          ? "ทีมงานตอบล่าสุด"
+          : conversation.latest_sender === "user"
+            ? "ผู้ใช้ส่งล่าสุด"
+            : "ห้องแชตใหม่";
+
+      const previewSenderText =
+        conversation.latest_sender === "assistant" ? "IQON AI ตอบล่าสุด" : senderText;
+
+      return `
+        <button
+          class="admin-chat-conversation${isActive ? " is-active" : ""}"
+          type="button"
+          data-conversation-id="${escapeHtml(conversation.id)}"
+        >
+          <div class="admin-chat-conversation-media">
+            <div class="admin-chat-conversation-avatar" aria-hidden="true">${escapeHtml(avatar)}</div>
+            <div class="admin-chat-conversation-copy">
+              <div class="admin-chat-conversation-mainline">
+                <div class="admin-chat-conversation-title">${escapeHtml(title)}</div>
+                <span class="admin-chat-conversation-time">${escapeHtml(formatTime(conversation.updated_at))}</span>
+              </div>
+              <div class="admin-chat-conversation-meta">${escapeHtml(metaParts.join(" • "))}</div>
+              <div class="admin-chat-conversation-preview-row">
+                <div class="admin-chat-conversation-preview">${escapeHtml(previewSenderText)}: ${escapeHtml(preview)}</div>
+                <span class="admin-chat-badge">${escapeHtml(String(conversation.message_count || 0))}</span>
+              </div>
+            </div>
+          </div>
+        </button>
+      `;
+    })
+    .join("");
+
+  conversationList.querySelectorAll("[data-conversation-id]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const conversationId = button.dataset.conversationId || "";
+      if (!conversationId || conversationId === selectedConversationId) {
+        return;
+      }
+
+      persistSelectedConversation(conversationId);
+      renderConversations(getFilteredConversations());
+      setChatStatus("");
+      await loadSelectedConversation();
+    });
+  });
+}
+
+function renderChatMessages(conversation, messages) {
+  if (!chatThread || !chatRoomTitle || !chatRoomMeta) {
+    return;
+  }
+
+  const roomTitle = getConversationDisplayTitle(conversation);
+  const roomMetaParts = [`รหัสห้อง ${conversation.id}`];
+
+  if (conversation.user_email) {
+    roomMetaParts.push(conversation.user_email);
+  }
+
+  roomMetaParts.push(`เริ่ม ${formatDateTime(conversation.created_at)}`);
+  roomMetaParts.push(`อัปเดตล่าสุด ${formatDateTime(conversation.updated_at)}`);
+
+  chatRoomTitle.textContent = roomTitle;
+  chatRoomMeta.textContent = roomMetaParts.join(" • ");
+
+  if (chatRoomAvatar) {
+    chatRoomAvatar.textContent = getConversationAvatarLabel(conversation);
+  }
+
+  renderChatInfoPanel(conversation, messages);
+
+  if (!messages.length) {
+    chatThread.innerHTML = `<div class="empty-state">ห้องนี้ยังไม่มีข้อความ</div>`;
+  } else {
+    chatThread.innerHTML = messages
+      .map((item) => {
+        const senderClass = item.sender === "admin" ? "admin-chat-message-admin" : "admin-chat-message-user";
+        const senderLabel =
+          item.sender === "admin"
+            ? "ทีมงาน IQON"
+            : conversation.user_name || conversation.user_email || "สมาชิกเว็บไซต์";
+
+        const resolvedSenderClass =
+          item.sender === "assistant" ? "admin-chat-message-assistant" : senderClass;
+        const resolvedSenderLabel = item.sender === "assistant" ? "IQON AI" : senderLabel;
+        const rowClass =
+          item.sender === "assistant"
+            ? "admin-chat-row-assistant"
+            : item.sender === "admin"
+              ? "admin-chat-row-admin"
+              : "admin-chat-row-user";
+        const avatarLabel =
+          item.sender === "assistant"
+            ? "AI"
+            : item.sender === "admin"
+              ? "IQ"
+              : getConversationAvatarLabel(conversation);
+        const avatarClass =
+          item.sender === "assistant"
+            ? "admin-chat-row-avatar admin-chat-row-avatar-assistant"
+            : "admin-chat-row-avatar";
+        const showAvatar = item.sender !== "admin";
+
+        return `
+          <article class="admin-chat-row ${rowClass}">
+            ${showAvatar ? `<div class="${avatarClass}" aria-hidden="true">${escapeHtml(avatarLabel)}</div>` : ""}
+            <div class="admin-chat-message ${resolvedSenderClass}">
+              <div class="admin-chat-message-meta">
+                <strong>${escapeHtml(resolvedSenderLabel)}</strong>
+                <span>${escapeHtml(formatTime(item.created_at))}</span>
+              </div>
+              <div class="admin-chat-message-body">${escapeHtml(item.message)}</div>
+            </div>
           </article>
         `;
       })
